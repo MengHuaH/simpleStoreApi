@@ -18,9 +18,11 @@ async function bootstrap() {
     .setTitle('Simple Store API')
     .setDescription('The Simple Store API description')
     .setVersion('1.0')
-    .addTag('simple-store')
-    .addTag('test', 'test') // 接口分组标签
-    .addTag('goods', '商品管理接口') // 接口分组标签
+    .addBearerAuth({
+      type: 'http',
+      scheme: 'bearer',
+      bearerFormat: 'JWT',
+    })
     .build();
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api', app, document);
