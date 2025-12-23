@@ -1,10 +1,16 @@
 import { NestFactory } from '@nestjs/core';
+import { ConfigModule } from '@nestjs/config';
 import { AppModule } from './app.module';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 
 declare const module: any;
 
 async function bootstrap() {
+  await ConfigModule.forRoot({
+    isGlobal: true,
+    envFilePath: '.env',
+  });
+
   const app = await NestFactory.create(AppModule);
 
   // 启用CORS

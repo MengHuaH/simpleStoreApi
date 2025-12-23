@@ -3,6 +3,8 @@ import { JwtService } from '@nestjs/jwt';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from '@/entities/user.entity';
+import { CacheService } from '@/cache/cache.service';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class AuthUserService {
@@ -10,6 +12,8 @@ export class AuthUserService {
     @InjectRepository(User)
     private readonly repository: Repository<User>,
     private jwtService: JwtService,
+    private cacheService: CacheService,
+    private configService: ConfigService,
   ) {}
 
   async execute(
@@ -23,8 +27,18 @@ export class AuthUserService {
     }
 
     const payload = { sub: user.id, username: user.username };
-    return {
-      access_token: await this.jwtService.signAsync(payload),
-    };
+    const token = await this.jwtService.signAsync(payload);
+    const cacheKey = `auth:${token}`;
+    const ttl = this.configService.get('cache.ttl.long');
+    await this.cacheService.set(cacheKey, payload, {
+      ttl,
+    });
+    return { access_token: token };
+  }
+
+  async logout(req: Request) {
+    const token = req.headers['authorization']?.split(' ')[1];
+    const cacheKey = `auth:${token}`;
+    await this.cacheService.delete(cacheKey);
   }
 }

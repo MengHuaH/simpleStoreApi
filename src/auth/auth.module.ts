@@ -8,6 +8,9 @@ import { APP_GUARD } from '@nestjs/core';
 import { UsersModule } from '@/modules/users/users.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { User } from '@/entities/user.entity';
+import { CacheModule } from '@/cache/cache.module';
+import { ConfigModule } from '@nestjs/config';
+
 @Module({
   imports: [
     TypeOrmModule.forFeature([User]),
@@ -17,6 +20,8 @@ import { User } from '@/entities/user.entity';
       secret: jwtConstants.secret,
       signOptions: { expiresIn: '30d' },
     }),
+    CacheModule,
+    ConfigModule,
   ],
   controllers: [AuthController],
   providers: [AuthUserService, { provide: APP_GUARD, useClass: AuthGuard }],
