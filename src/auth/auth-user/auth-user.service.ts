@@ -1,10 +1,13 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { HttpStatus, Injectable, NotFoundException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from '@/entities/user.entity';
 import { CacheService } from '@/cache/cache.service';
 import { ConfigService } from '@nestjs/config';
+import { successResponse } from '@/common/utils/response.util';
+import { BusinessException } from '@/common/exceptions/business.exception';
+import { ApiResponse } from '@/common/interface/response.interface';
 
 @Injectable()
 export class AuthUserService {
@@ -19,11 +22,15 @@ export class AuthUserService {
   async execute(
     username: string,
     password: string,
-  ): Promise<{ access_token: string }> {
+  ): Promise<ApiResponse<{ access_token: string }>> {
     let user = await this.repository.findOne({ where: { username } });
 
     if (!user || user.password !== password) {
-      throw new NotFoundException(`用户名或密码错误`);
+      throw new BusinessException(
+        `用户名或密码错误`,
+        401,
+        HttpStatus.UNAUTHORIZED,
+      );
     }
 
     const payload = { sub: user.id, username: user.username };
@@ -33,7 +40,7 @@ export class AuthUserService {
     await this.cacheService.set(cacheKey, payload, {
       ttl,
     });
-    return { access_token: token };
+    return successResponse({ access_token: token });
   }
 
   async logout(req: Request) {

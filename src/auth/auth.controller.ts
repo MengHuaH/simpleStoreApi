@@ -18,13 +18,13 @@ import {
   ApiTags,
   ApiOperation,
   ApiResponse,
-  ApiQuery,
   ApiBearerAuth,
 } from '@nestjs/swagger';
 
 import { AuthUserService } from './auth-user/auth-user.service';
 import { AuthUserDto } from './auth-user/auth-user.dto';
 import { Public } from './AllowAnon.decorator';
+import { ApiResponse as ApiResponseInterface } from '@/common/interface/response.interface';
 
 @ApiBearerAuth()
 @ApiTags('auth')
@@ -43,7 +43,7 @@ export class AuthController {
   @ApiResponse({ status: 404, description: '用户不存在' })
   async login(
     @Body() loginDto: AuthUserDto,
-  ): Promise<{ access_token: string }> {
+  ): Promise<ApiResponseInterface<{ access_token: string }>> {
     return await this.authUserService.execute(
       loginDto.username,
       loginDto.password,

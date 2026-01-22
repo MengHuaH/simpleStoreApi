@@ -35,9 +35,11 @@ import { CreateUserDto } from './commands/create-user/create-user.dto';
 import { UpdateUserDto } from './commands/update-user/update-user.dto';
 import { ListUsersDto } from './queries/list-users/list-users.dto';
 import { SearchUsersDto } from './queries/search-users/search-users.dto';
+import { ApiPageResponse } from '@/common/interface/response.interface';
 
 // Entities
 import { User } from '../../entities/user.entity';
+import { ApiSuccessResponse } from '@/common/decorators/api-response.decorator';
 
 @ApiBearerAuth()
 @ApiTags('users')
@@ -78,7 +80,11 @@ export class UsersController {
     type: Number,
     description: '每页数量，默认10',
   })
-  @ApiResponse({ status: 200, description: '用户列表获取成功' })
+  @ApiResponse({
+    status: 200,
+    description: '用户列表获取成功',
+    type: Array<User>,
+  })
   async findAll(@Query() listUsersDto: ListUsersDto) {
     return await this.listUsersService.execute(listUsersDto);
   }

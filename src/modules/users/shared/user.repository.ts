@@ -30,8 +30,13 @@ export class UserRepository {
     await this.repository.delete(id);
   }
 
-  async findAll(skip: number, take: number): Promise<[User[], number]> {
+  async findAll(
+    select: (keyof User)[],
+    skip: number,
+    take: number,
+  ): Promise<[User[], number]> {
     return this.repository.findAndCount({
+      select,
       skip,
       take,
       order: { createdAt: 'DESC' },
