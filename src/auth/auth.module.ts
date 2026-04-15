@@ -1,6 +1,8 @@
 import { Module } from '@nestjs/common';
 import { AuthController } from './auth.controller';
 import { AuthMemberService } from './auth-member/auth-member.service';
+import { AuthCommunityStaffService } from './auth-community-staff/auth-community-staff.service';
+import { AuthPlatformStaffService } from './auth-platform-staff/auth-platform-staff.service';
 import { JwtModule } from '@nestjs/jwt';
 import { jwtConstants } from './constants';
 import { AuthGuard } from './auth.guard';
@@ -46,7 +48,16 @@ import { PlatformStaffsModule } from '@/modules/platform-staffs/platform-staffs.
     ConfigModule,
   ],
   controllers: [AuthController],
-  providers: [AuthMemberService, { provide: APP_GUARD, useClass: AuthGuard }],
-  exports: [AuthMemberService],
+  providers: [
+    AuthMemberService,
+    AuthCommunityStaffService,
+    AuthPlatformStaffService,
+    { provide: APP_GUARD, useClass: AuthGuard },
+  ],
+  exports: [
+    AuthMemberService,
+    AuthCommunityStaffService,
+    AuthPlatformStaffService,
+  ],
 })
 export class AuthModule {}
