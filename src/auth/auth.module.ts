@@ -4,6 +4,7 @@ import { AuthMemberService } from './auth-member/auth-member.service';
 import { AuthCommunityStaffService } from './auth-community-staff/auth-community-staff.service';
 import { AuthPlatformStaffService } from './auth-platform-staff/auth-platform-staff.service';
 import { AuthLogoutService } from './shared/auth-logout.service';
+import { OtpModule } from '@/otp/otp.module';
 import { JwtModule } from '@nestjs/jwt';
 import { jwtConstants } from './constants';
 import { AuthGuard } from './auth.guard';
@@ -40,6 +41,7 @@ import { PlatformStaffsModule } from '@/modules/platform-staffs/platform-staffs.
     MembersModule,
     CommunityStaffsModule,
     PlatformStaffsModule,
+    OtpModule,
     JwtModule.register({
       global: true,
       secret: jwtConstants.secret,
