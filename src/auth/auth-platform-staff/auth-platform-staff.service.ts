@@ -73,7 +73,7 @@ export class AuthPlatformStaffService {
     const payload = {
       sub: platformStaff.id,
       phone: platformStaff.phone,
-      subjectType: 'platform_staff',
+      subjectType: SubjectTypeEnum.PlatformStaff,
     };
     const token = await this.jwtService.signAsync(payload);
     const cacheKey = `auth:platform_staff:${token}`;

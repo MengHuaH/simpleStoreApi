@@ -73,7 +73,7 @@ export class AuthCommunityStaffService {
     const payload = {
       sub: communityStaff.id,
       phone: communityStaff.phone,
-      subjectType: 'community_staff',
+      subjectType: SubjectTypeEnum.CommunityStaff,
     };
     const token = await this.jwtService.signAsync(payload);
     const cacheKey = `auth:community_staff:${token}`;

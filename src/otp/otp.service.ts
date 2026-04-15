@@ -151,9 +151,8 @@ export class OtpService {
       );
     }
 
-    // 验证成功，标记为已使用
-    otpSession.isUsed = true;
-    await this.cacheService.set(otpKey, otpSession, { ttl: this.OTP_EXPIRY });
+    // 验证成功，删除Redis中的OTP记录
+    await this.cacheService.delete(otpKey);
 
     return {
       success: true,

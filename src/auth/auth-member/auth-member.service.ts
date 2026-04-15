@@ -70,9 +70,13 @@ export class AuthMemberService {
       }
     }
 
-    const payload = { sub: member.id, phone: member.phone };
+    const payload = {
+      sub: member.id,
+      phone: member.phone,
+      subjectType: SubjectTypeEnum.Member,
+    };
     const token = await this.jwtService.signAsync(payload);
-    const cacheKey = `auth:${token}`;
+    const cacheKey = `auth:member:${token}`;
     const ttl = this.configService.get('cache.ttl.long');
     await this.cacheService.set(cacheKey, payload, {
       ttl,
