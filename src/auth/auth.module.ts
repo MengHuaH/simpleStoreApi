@@ -5,17 +5,15 @@ import { JwtModule } from '@nestjs/jwt';
 import { jwtConstants } from './constants';
 import { AuthGuard } from './auth.guard';
 import { APP_GUARD } from '@nestjs/core';
-import { UsersModule } from '@/modules/users/users.module';
 import { MembersModule } from '@/modules/members/members.module';
+import { Member } from '@/entities/member.entity';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { User } from '@/entities/user.entity';
 import { CacheModule } from '@/cache/cache.module';
 import { ConfigModule } from '@nestjs/config';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([User]),
-    UsersModule,
+    TypeOrmModule.forFeature([Member]),
     MembersModule,
     JwtModule.register({
       global: true,

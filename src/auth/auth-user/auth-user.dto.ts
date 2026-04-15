@@ -2,12 +2,12 @@ import { IsNotEmpty, IsString } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class AuthUserDto {
-  @ApiProperty({ description: '用户名', example: 'admin' })
-  @IsNotEmpty({ message: '用户名不能为空' })
-  @IsString({ message: '用户名必须是字符串' })
-  username: string;
+  @ApiProperty({ description: '手机号', example: '13800000000' })
+  @IsNotEmpty({ message: '手机号不能为空' })
+  @IsString({ message: '手机号必须是字符串' })
+  phone: string;
 
-  @ApiProperty({ description: '密码', example: 'admin123' })
+  @ApiProperty({ description: '密码', example: '13800000000' })
   @IsNotEmpty({ message: '密码不能为空' })
   @IsString({ message: '密码必须是字符串' })
   password: string;

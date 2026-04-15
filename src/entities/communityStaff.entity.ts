@@ -16,12 +16,13 @@ export class CommunityStaff extends BaseEntity {
     (userCredential) => userCredential.communityStaff,
     {
       nullable: true,
+      cascade: true,
     },
   )
   userCredential: UserCredential[];
 
-  @ApiProperty({ example: [], description: '用户会话' })
-  @OneToMany(() => UserSession, (userSession) => userSession.member, {
+  @ApiProperty({ example: [], description: '社区员工会话' })
+  @OneToMany(() => UserSession, (userSession) => userSession.communityStaff, {
     nullable: true,
   })
   userSession: UserSession[];

@@ -10,18 +10,19 @@ export class PlatformStaff extends BaseEntity {
   @Column({ nullable: true })
   phone: string;
 
-  @ApiProperty({ example: [], description: '用户凭证' })
+  @ApiProperty({ example: [], description: '平台员工凭证' })
   @OneToMany(
     () => UserCredential,
     (userCredential) => userCredential.platformStaff,
     {
       nullable: true,
+      cascade: true,
     },
   )
   userCredential: UserCredential[];
 
-  @ApiProperty({ example: [], description: '用户会话' })
-  @OneToMany(() => UserSession, (userSession) => userSession.member, {
+  @ApiProperty({ example: [], description: '平台员工会话' })
+  @OneToMany(() => UserSession, (userSession) => userSession.platformStaff, {
     nullable: true,
   })
   userSession: UserSession[];

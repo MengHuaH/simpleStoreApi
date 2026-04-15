@@ -35,17 +35,17 @@ export class AuthController {
   @Public()
   @Post()
   @ApiOperation({
-    summary: '用户登录',
-    description: '用户登录，需提供用户名、密码',
+    summary: '会员登录',
+    description: '会员登录，需提供会员名、密码',
   })
   @ApiResponse({ status: 200, description: '登录成功' })
   @ApiResponse({ status: 400, description: '请求参数错误' })
-  @ApiResponse({ status: 404, description: '用户不存在' })
+  @ApiResponse({ status: 404, description: '会员不存在' })
   async login(
     @Body() loginDto: AuthUserDto,
   ): Promise<ApiResponseInterface<{ access_token: string }>> {
     return await this.authUserService.execute(
-      loginDto.username,
+      loginDto.phone,
       loginDto.password,
     );
   }
@@ -53,8 +53,8 @@ export class AuthController {
   @Public()
   @Post('logout')
   @ApiOperation({
-    summary: '用户登出',
-    description: '用户登出，需提供token',
+    summary: '会员登出',
+    description: '会员登出，需提供token',
   })
   @ApiResponse({ status: 200, description: '登出成功' })
   @ApiResponse({ status: 400, description: '请求参数错误' })

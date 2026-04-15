@@ -1,6 +1,5 @@
 import { TypeOrmModuleOptions } from '@nestjs/typeorm';
 import {
-  User,
   BaseEntity,
   Member,
   CommunityStaff,
@@ -18,7 +17,6 @@ export const typeOrmConfig: TypeOrmModuleOptions = {
   database: process.env.DB_DATABASE || 'elec_db',
   entities: [
     BaseEntity,
-    User,
     UserSession,
     Member,
     CommunityStaff,
