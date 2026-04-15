@@ -54,11 +54,14 @@ export class AuthController {
   @ApiResponse({ status: 404, description: '会员不存在' })
   async loginMember(
     @Body() loginDto: AuthMemberDto,
+    @Req() req: Request,
   ): Promise<ApiResponseInterface<{ access_token: string }>> {
+    const deviceId = this.generateDeviceId(req);
     return await this.authMemberService.execute(
       loginDto.phone,
       loginDto.password,
       loginDto.otpCode,
+      deviceId,
     );
   }
 
@@ -74,11 +77,14 @@ export class AuthController {
   @ApiResponse({ status: 404, description: '社区员工不存在' })
   async loginCommunityStaff(
     @Body() loginDto: AuthCommunityStaffDto,
+    @Req() req: Request,
   ): Promise<ApiResponseInterface<{ access_token: string }>> {
+    const deviceId = this.generateDeviceId(req);
     return await this.authCommunityStaffService.execute(
       loginDto.phone,
       loginDto.password,
       loginDto.otpCode,
+      deviceId,
     );
   }
 
@@ -94,11 +100,14 @@ export class AuthController {
   @ApiResponse({ status: 404, description: '平台员工不存在' })
   async loginPlatformStaff(
     @Body() loginDto: AuthPlatformStaffDto,
+    @Req() req: Request,
   ): Promise<ApiResponseInterface<{ access_token: string }>> {
+    const deviceId = this.generateDeviceId(req);
     return await this.authPlatformStaffService.execute(
       loginDto.phone,
       loginDto.password,
       loginDto.otpCode,
+      deviceId,
     );
   }
 
@@ -114,5 +123,28 @@ export class AuthController {
   @ApiResponse({ status: 401, description: 'token无效' })
   async logout(@Req() req: Request) {
     return await this.authLogoutService.unifiedLogout(req);
+  }
+
+  /**
+   * 生成设备ID
+   */
+  private generateDeviceId(req: Request): string {
+    const userAgent = req.headers['user-agent'] || 'unknown';
+    const ipAddress = this.getClientIp(req);
+    
+    // 简化的设备指纹生成
+    const fingerprint = Buffer.from(`${userAgent}:${ipAddress}`).toString('base64');
+    return fingerprint.substring(0, 32); // 限制长度
+  }
+
+  /**
+   * 获取客户端IP地址
+   */
+  private getClientIp(req: Request): string {
+    // 从常见HTTP头中获取IP地址
+    const ip = req.headers['x-forwarded-for'] || 
+               req.headers['x-real-ip'] || 
+               'unknown';
+    return Array.isArray(ip) ? ip[0] : ip;
   }
 }

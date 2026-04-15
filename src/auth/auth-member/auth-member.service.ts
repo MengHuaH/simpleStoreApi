@@ -16,6 +16,7 @@ import { ApiResponse } from '@/common/interface/response.interface';
 import { CredentialTypeEnum, SubjectTypeEnum } from '../../entities/enums';
 import { AuthLogoutService } from '../shared/auth-logout.service';
 import { OtpService } from '@/otp/otp.service';
+import { SessionService } from '@/modules/sessions/shared/session.service';
 import * as bcrypt from 'bcrypt';
 
 @Injectable()
@@ -28,12 +29,14 @@ export class AuthMemberService {
     private configService: ConfigService,
     private authLogoutService: AuthLogoutService,
     private otpService: OtpService,
+    private sessionService: SessionService,
   ) {}
 
   async execute(
     phone: string,
     password: string,
     otpCode?: string,
+    deviceId: string = 'unknown',
   ): Promise<ApiResponse<{ access_token: string }>> {
     let member = await this.repository.findOne({
       where: { phone },
@@ -81,6 +84,15 @@ export class AuthMemberService {
     await this.cacheService.set(cacheKey, payload, {
       ttl,
     });
+
+    // 创建会话记录到数据库
+    await this.sessionService.createSession(
+      member.id,
+      SubjectTypeEnum.Member,
+      token,
+      deviceId,
+    );
+
     return successResponse({ access_token: token });
   }
 }

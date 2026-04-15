@@ -6,14 +6,6 @@ import { pageResponse } from '@/common/utils/response.util';
 import { ApiPageResponse } from '@/common/interface/response.interface';
 import { DtoToSelect } from '@/common/utils/entityToDto.util';
 
-export interface ListMembersResult {
-  members: Member[];
-  total: number;
-  page: number;
-  limit: number;
-  totalPages: number;
-}
-
 @Injectable()
 export class ListMembersService {
   constructor(private readonly memberRepository: MemberRepository) {}

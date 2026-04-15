@@ -42,10 +42,14 @@ export class UserSession extends BaseEntity {
   subjectType: SubjectTypeEnum;
 
   @ApiProperty({
-    example: '123456',
+    example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...',
     description: 'token',
   })
-  @Column({ nullable: true })
+  @Column({
+    type: 'varchar',
+    length: 512,
+    nullable: true,
+  })
   token: string;
 
   @ApiProperty({ example: '123456', description: '设备ID' })
