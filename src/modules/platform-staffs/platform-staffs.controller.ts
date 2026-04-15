@@ -20,7 +20,7 @@ import {
   ApiBearerAuth,
 } from '@nestjs/swagger';
 
-import { Public } from '../../auth/AllowAnon.decorator';
+import { RequiresPlatformStaff } from '../../auth/AllowAnon.decorator';
 
 // Commands Services
 import { CreatePlatformStaffService } from './commands/create-platform-staff/create-platform-staff.service';
@@ -42,6 +42,7 @@ import { SearchPlatformStaffsDto } from './queries/search-platform-staffs/search
 import { PlatformStaff } from '../../entities/platformStaff.entity';
 import { ApiSuccessResponse } from '@/common/decorators/api-response.decorator';
 
+@RequiresPlatformStaff()
 @ApiBearerAuth()
 @ApiTags('platform-staffs')
 @Controller('platform-staffs')
@@ -82,7 +83,8 @@ export class PlatformStaffsController {
   @ApiOperation({ summary: '搜索平台员工' })
   @ApiResponse({ status: 200, description: '搜索平台员工成功' })
   async search(
-    @Query(new ValidationPipe()) searchPlatformStaffsDto: SearchPlatformStaffsDto,
+    @Query(new ValidationPipe())
+    searchPlatformStaffsDto: SearchPlatformStaffsDto,
   ) {
     return this.searchPlatformStaffsService.execute(searchPlatformStaffsDto);
   }
@@ -91,7 +93,9 @@ export class PlatformStaffsController {
   @ApiOperation({ summary: '获取平台员工详情' })
   @ApiResponse({ status: 200, description: '获取平台员工详情成功' })
   @ApiSuccessResponse(PlatformStaff, '获取平台员工详情成功')
-  async findOne(@Param('id', ParseUUIDPipe) id: string): Promise<PlatformStaff> {
+  async findOne(
+    @Param('id', ParseUUIDPipe) id: string,
+  ): Promise<PlatformStaff> {
     return this.getPlatformStaffService.execute({ id });
   }
 
