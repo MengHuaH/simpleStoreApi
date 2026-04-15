@@ -9,17 +9,6 @@ import { ApiProperty } from '@nestjs/swagger';
 
 export class UpdateMemberDto {
   @ApiProperty({
-    description: '手机号',
-    example: '13800000000',
-    required: false,
-  })
-  @IsOptional()
-  @IsNotEmpty({ message: '手机号不能为空' })
-  @IsString({ message: '手机号必须是字符串' })
-  @Length(11, 11, { message: '手机号长度必须是11位' })
-  phone: string;
-
-  @ApiProperty({
     description: '密码',
     example: 'newpassword123',
     required: false,

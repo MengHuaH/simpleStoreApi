@@ -9,6 +9,8 @@ import { successResponse } from '@/common/utils/response.util';
 import { BusinessException } from '@/common/exceptions/business.exception';
 import { ApiResponse } from '@/common/interface/response.interface';
 import { CredentialTypeEnum } from '../../entities/enums';
+import { AuthLogoutService } from '../shared/auth-logout.service';
+import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class AuthPlatformStaffService {
@@ -18,6 +20,7 @@ export class AuthPlatformStaffService {
     private jwtService: JwtService,
     private cacheService: CacheService,
     private configService: ConfigService,
+    private authLogoutService: AuthLogoutService,
   ) {}
 
   async execute(
@@ -31,14 +34,12 @@ export class AuthPlatformStaffService {
     if (!platformStaff) {
       throw new NotFoundException(`平台员工手机号${phone}不存在`);
     }
-
+    const passwordItem = platformStaff.userCredential.find(
+      (item) => item.credentialType === CredentialTypeEnum.Password,
+    );
     if (
-      !platformStaff ||
-      platformStaff.userCredential.find(
-        (item) =>
-          item.credentialType === CredentialTypeEnum.Password &&
-          item.credential !== password,
-      )
+      passwordItem &&
+      !(await bcrypt.compare(password, passwordItem!.credential))
     ) {
       throw new BusinessException(
         `手机号或密码错误`,
@@ -47,10 +48,10 @@ export class AuthPlatformStaffService {
       );
     }
 
-    const payload = { 
-      sub: platformStaff.id, 
+    const payload = {
+      sub: platformStaff.id,
       phone: platformStaff.phone,
-      subjectType: 'platform_staff'
+      subjectType: 'platform_staff',
     };
     const token = await this.jwtService.signAsync(payload);
     const cacheKey = `auth:platform_staff:${token}`;
@@ -59,11 +60,5 @@ export class AuthPlatformStaffService {
       ttl,
     });
     return successResponse({ access_token: token });
-  }
-
-  async logout(req: Request) {
-    const token = req.headers['authorization']?.split(' ')[1];
-    const cacheKey = `auth:platform_staff:${token}`;
-    await this.cacheService.delete(cacheKey);
   }
 }

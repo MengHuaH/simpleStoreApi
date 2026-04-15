@@ -34,8 +34,17 @@ export class CommunityStaffRepository {
     return !!result;
   }
 
-  async findAll(): Promise<CommunityStaff[]> {
-    return this.repository.find();
+  async findAll(
+    select: (keyof CommunityStaff)[],
+    skip: number,
+    take: number,
+  ): Promise<[CommunityStaff[], number]> {
+    return this.repository.findAndCount({
+      select,
+      skip,
+      take,
+      order: { createdAt: 'DESC' },
+    });
   }
 
   async findWithPagination(

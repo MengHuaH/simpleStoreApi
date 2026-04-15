@@ -2,6 +2,8 @@ import { Injectable, ConflictException } from '@nestjs/common';
 import { MemberRepository } from '../../shared/member.repository';
 import { CreateMemberDto } from './create-member.dto';
 import { Member, UserCredential } from '../../../../entities';
+import * as bcrypt from 'bcrypt';
+
 import {
   SubjectTypeEnum,
   CredentialTypeEnum,
@@ -25,7 +27,7 @@ export class CreateMemberService {
     const userCredential = new UserCredential();
     userCredential.subjectType = SubjectTypeEnum.Member;
     userCredential.credentialType = CredentialTypeEnum.Password;
-    userCredential.credential = createMemberDto.password;
+    userCredential.credential = await bcrypt.hash(createMemberDto.password, 10);
 
     const member = new Member();
     member.phone = createMemberDto.phone;

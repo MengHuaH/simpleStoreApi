@@ -42,7 +42,6 @@ import { SearchPlatformStaffsDto } from './queries/search-platform-staffs/search
 import { PlatformStaff } from '../../entities/platformStaff.entity';
 import { ApiSuccessResponse } from '@/common/decorators/api-response.decorator';
 
-@RequiresPlatformStaff()
 @ApiBearerAuth()
 @ApiTags('platform-staffs')
 @Controller('platform-staffs')
@@ -58,6 +57,7 @@ export class PlatformStaffsController {
     private readonly searchPlatformStaffsService: SearchPlatformStaffsService,
   ) {}
 
+  @RequiresPlatformStaff()
   @Post()
   @ApiOperation({ summary: '创建平台员工' })
   @ApiResponse({ status: 201, description: '平台员工创建成功' })
@@ -68,6 +68,7 @@ export class PlatformStaffsController {
     return this.createPlatformStaffService.execute(createPlatformStaffDto);
   }
 
+  @RequiresPlatformStaff()
   @Get()
   @ApiOperation({ summary: '获取平台员工列表' })
   @ApiQuery({ name: 'page', required: false, type: Number })
@@ -79,6 +80,7 @@ export class PlatformStaffsController {
     return this.listPlatformStaffsService.execute(listPlatformStaffsDto);
   }
 
+  @RequiresPlatformStaff()
   @Get('search')
   @ApiOperation({ summary: '搜索平台员工' })
   @ApiResponse({ status: 200, description: '搜索平台员工成功' })
@@ -89,6 +91,7 @@ export class PlatformStaffsController {
     return this.searchPlatformStaffsService.execute(searchPlatformStaffsDto);
   }
 
+  @RequiresPlatformStaff()
   @Get(':id')
   @ApiOperation({ summary: '获取平台员工详情' })
   @ApiResponse({ status: 200, description: '获取平台员工详情成功' })
@@ -99,6 +102,7 @@ export class PlatformStaffsController {
     return this.getPlatformStaffService.execute({ id });
   }
 
+  @RequiresPlatformStaff()
   @Patch(':id')
   @ApiOperation({ summary: '更新平台员工信息' })
   @ApiResponse({ status: 200, description: '平台员工信息更新成功' })
@@ -110,6 +114,7 @@ export class PlatformStaffsController {
     return { success: true, message: '平台员工信息更新成功' };
   }
 
+  @RequiresPlatformStaff()
   @Delete(':id')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: '删除平台员工' })

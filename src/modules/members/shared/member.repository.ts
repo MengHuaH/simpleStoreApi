@@ -15,7 +15,10 @@ export class MemberRepository {
   }
 
   async findOne(phone: string): Promise<Member | null> {
-    return this.repository.findOne({ where: { phone } });
+    return this.repository.findOne({
+      where: { phone },
+      relations: ['userCredential'],
+    });
   }
 
   async save(member: Member): Promise<Member> {

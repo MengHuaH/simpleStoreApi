@@ -1,7 +1,10 @@
 import { Injectable, ConflictException } from '@nestjs/common';
 import { PlatformStaffRepository } from '../../shared/platform-staff.repository';
 import { CreatePlatformStaffDto } from './create-platform-staff.dto';
-import { PlatformStaff } from '../../../../entities/platformStaff.entity';
+import { UserCredential } from '@/entities/userCredential.entity';
+import * as bcrypt from 'bcrypt';
+import { SubjectTypeEnum, CredentialTypeEnum } from '@/entities/enums';
+import { PlatformStaff } from '@/entities/platformStaff.entity';
 
 @Injectable()
 export class CreatePlatformStaffService {
@@ -15,9 +18,15 @@ export class CreatePlatformStaffService {
     }
 
     // 创建平台员工
+    const userCredential = new UserCredential();
+    userCredential.subjectType = SubjectTypeEnum.PlatformStaff;
+    userCredential.credentialType = CredentialTypeEnum.Password;
+    userCredential.credential = await bcrypt.hash(dto.password, 10);
+
     const platformStaff = new PlatformStaff();
     platformStaff.phone = dto.phone;
     platformStaff.isActive = dto.isActive ?? true;
+    platformStaff.userCredential = [userCredential];
 
     return await this.repository.save(platformStaff);
   }

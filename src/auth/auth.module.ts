@@ -3,6 +3,7 @@ import { AuthController } from './auth.controller';
 import { AuthMemberService } from './auth-member/auth-member.service';
 import { AuthCommunityStaffService } from './auth-community-staff/auth-community-staff.service';
 import { AuthPlatformStaffService } from './auth-platform-staff/auth-platform-staff.service';
+import { AuthLogoutService } from './shared/auth-logout.service';
 import { JwtModule } from '@nestjs/jwt';
 import { jwtConstants } from './constants';
 import { AuthGuard } from './auth.guard';
@@ -52,6 +53,7 @@ import { PlatformStaffsModule } from '@/modules/platform-staffs/platform-staffs.
     AuthMemberService,
     AuthCommunityStaffService,
     AuthPlatformStaffService,
+    AuthLogoutService,
     { provide: APP_GUARD, useClass: AuthGuard },
   ],
   exports: [

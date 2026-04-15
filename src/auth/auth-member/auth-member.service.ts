@@ -9,6 +9,8 @@ import { successResponse } from '@/common/utils/response.util';
 import { BusinessException } from '@/common/exceptions/business.exception';
 import { ApiResponse } from '@/common/interface/response.interface';
 import { CredentialTypeEnum } from '../../entities/enums';
+import { AuthLogoutService } from '../shared/auth-logout.service';
+import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class AuthMemberService {
@@ -18,6 +20,7 @@ export class AuthMemberService {
     private jwtService: JwtService,
     private cacheService: CacheService,
     private configService: ConfigService,
+    private authLogoutService: AuthLogoutService,
   ) {}
 
   async execute(
@@ -31,14 +34,12 @@ export class AuthMemberService {
     if (!member) {
       throw new NotFoundException(`手机号${phone}不存在`);
     }
-    console.log(member);
+    const passwordItem = member.userCredential.find(
+      (item) => item.credentialType === CredentialTypeEnum.Password,
+    );
     if (
-      !member ||
-      member.userCredential.find(
-        (item) =>
-          item.credentialType === CredentialTypeEnum.Password &&
-          item.credential !== password,
-      )
+      passwordItem &&
+      !(await bcrypt.compare(password, passwordItem!.credential))
     ) {
       throw new BusinessException(
         `手机号或密码错误`,
@@ -55,11 +56,5 @@ export class AuthMemberService {
       ttl,
     });
     return successResponse({ access_token: token });
-  }
-
-  async logout(req: Request) {
-    const token = req.headers['authorization']?.split(' ')[1];
-    const cacheKey = `auth:${token}`;
-    await this.cacheService.delete(cacheKey);
   }
 }

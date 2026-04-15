@@ -34,8 +34,16 @@ export class PlatformStaffRepository {
     return !!result;
   }
 
-  async findAll(): Promise<PlatformStaff[]> {
-    return this.repository.find();
+  async findAll(
+    select: (keyof PlatformStaff)[],
+    skip: number,
+    take: number,
+  ): Promise<[PlatformStaff[], number]> {
+    return this.repository.findAndCount({
+      select,
+      skip,
+      take,
+    });
   }
 
   async findWithPagination(

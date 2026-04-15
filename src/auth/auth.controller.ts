@@ -27,6 +27,7 @@ import { AuthCommunityStaffService } from './auth-community-staff/auth-community
 import { AuthCommunityStaffDto } from './auth-community-staff/auth-community-staff.dto';
 import { AuthPlatformStaffService } from './auth-platform-staff/auth-platform-staff.service';
 import { AuthPlatformStaffDto } from './auth-platform-staff/auth-platform-staff.dto';
+import { AuthLogoutService } from './shared/auth-logout.service';
 import { Public } from './AllowAnon.decorator';
 import { ApiResponse as ApiResponseInterface } from '@/common/interface/response.interface';
 
@@ -38,6 +39,7 @@ export class AuthController {
     private readonly authMemberService: AuthMemberService,
     private readonly authCommunityStaffService: AuthCommunityStaffService,
     private readonly authPlatformStaffService: AuthPlatformStaffService,
+    private readonly authLogoutService: AuthLogoutService,
   ) {}
 
   // 会员认证接口
@@ -59,19 +61,6 @@ export class AuthController {
     );
   }
 
-  @Public()
-  @Post('member/logout')
-  @ApiOperation({
-    summary: '会员登出',
-    description: '会员登出，需提供token',
-  })
-  @ApiResponse({ status: 200, description: '登出成功' })
-  @ApiResponse({ status: 400, description: '请求参数错误' })
-  @ApiResponse({ status: 401, description: 'token无效' })
-  async logoutMember(@Req() req: Request) {
-    return await this.authMemberService.logout(req);
-  }
-
   // 社区员工认证接口
   @Public()
   @Post('community-staff')
@@ -89,19 +78,6 @@ export class AuthController {
       loginDto.phone,
       loginDto.password,
     );
-  }
-
-  @Public()
-  @Post('community-staff/logout')
-  @ApiOperation({
-    summary: '社区员工登出',
-    description: '社区员工登出，需提供token',
-  })
-  @ApiResponse({ status: 200, description: '登出成功' })
-  @ApiResponse({ status: 400, description: '请求参数错误' })
-  @ApiResponse({ status: 401, description: 'token无效' })
-  async logoutCommunityStaff(@Req() req: Request) {
-    return await this.authCommunityStaffService.logout(req);
   }
 
   // 平台员工认证接口
@@ -123,16 +99,17 @@ export class AuthController {
     );
   }
 
+  // 统一的登出接口
   @Public()
-  @Post('platform-staff/logout')
+  @Post('logout')
   @ApiOperation({
-    summary: '平台员工登出',
-    description: '平台员工登出，需提供token',
+    summary: '统一登出',
+    description: '统一登出接口，适用于所有用户类型，需提供token',
   })
   @ApiResponse({ status: 200, description: '登出成功' })
   @ApiResponse({ status: 400, description: '请求参数错误' })
   @ApiResponse({ status: 401, description: 'token无效' })
-  async logoutPlatformStaff(@Req() req: Request) {
-    return await this.authPlatformStaffService.logout(req);
+  async logout(@Req() req: Request) {
+    return await this.authLogoutService.unifiedLogout(req);
   }
 }

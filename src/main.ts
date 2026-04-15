@@ -6,6 +6,8 @@ import { TransformInterceptor } from './common/interceptors/transform.intercepto
 import { GlobalExceptionFilter } from './common/filters/exception.filter';
 import { ValidationPipe } from '@nestjs/common';
 import { BusinessException } from './common/exceptions/business.exception';
+import { DataSource } from 'typeorm';
+import { runSeeds } from './database/seeds';
 
 declare const module: any;
 
@@ -16,6 +18,10 @@ async function bootstrap() {
   });
 
   const app = await NestFactory.create(AppModule);
+
+  // 运行种子数据
+  const dataSource = app.get(DataSource);
+  await runSeeds(dataSource);
   // 全局拦截器（响应格式化）
   app.useGlobalInterceptors(new TransformInterceptor());
   // 全局异常过滤器（捕获业务异常）

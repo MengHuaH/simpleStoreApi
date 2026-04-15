@@ -9,6 +9,8 @@ import { successResponse } from '@/common/utils/response.util';
 import { BusinessException } from '@/common/exceptions/business.exception';
 import { ApiResponse } from '@/common/interface/response.interface';
 import { CredentialTypeEnum } from '../../entities/enums';
+import { AuthLogoutService } from '../shared/auth-logout.service';
+import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class AuthCommunityStaffService {
@@ -18,6 +20,7 @@ export class AuthCommunityStaffService {
     private jwtService: JwtService,
     private cacheService: CacheService,
     private configService: ConfigService,
+    private authLogoutService: AuthLogoutService,
   ) {}
 
   async execute(
@@ -31,14 +34,12 @@ export class AuthCommunityStaffService {
     if (!communityStaff) {
       throw new NotFoundException(`社区员工手机号${phone}不存在`);
     }
-
+    const passwordItem = communityStaff.userCredential.find(
+      (item) => item.credentialType === CredentialTypeEnum.Password,
+    );
     if (
-      !communityStaff ||
-      communityStaff.userCredential.find(
-        (item) =>
-          item.credentialType === CredentialTypeEnum.Password &&
-          item.credential !== password,
-      )
+      passwordItem &&
+      !(await bcrypt.compare(password, passwordItem!.credential))
     ) {
       throw new BusinessException(
         `手机号或密码错误`,
@@ -47,10 +48,10 @@ export class AuthCommunityStaffService {
       );
     }
 
-    const payload = { 
-      sub: communityStaff.id, 
+    const payload = {
+      sub: communityStaff.id,
       phone: communityStaff.phone,
-      subjectType: 'community_staff'
+      subjectType: 'community_staff',
     };
     const token = await this.jwtService.signAsync(payload);
     const cacheKey = `auth:community_staff:${token}`;
@@ -59,11 +60,5 @@ export class AuthCommunityStaffService {
       ttl,
     });
     return successResponse({ access_token: token });
-  }
-
-  async logout(req: Request) {
-    const token = req.headers['authorization']?.split(' ')[1];
-    const cacheKey = `auth:community_staff:${token}`;
-    await this.cacheService.delete(cacheKey);
   }
 }

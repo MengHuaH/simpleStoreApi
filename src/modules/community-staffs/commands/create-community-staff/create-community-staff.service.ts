@@ -2,6 +2,12 @@ import { Injectable, ConflictException } from '@nestjs/common';
 import { CommunityStaffRepository } from '../../shared/community-staff.repository';
 import { CreateCommunityStaffDto } from './create-community-staff.dto';
 import { CommunityStaff } from '../../../../entities/communityStaff.entity';
+import * as bcrypt from 'bcrypt';
+import {
+  SubjectTypeEnum,
+  CredentialTypeEnum,
+} from '../../../../entities/enums';
+import { UserCredential } from '../../../../entities/userCredential.entity';
 
 @Injectable()
 export class CreateCommunityStaffService {
@@ -15,6 +21,12 @@ export class CreateCommunityStaffService {
     }
 
     // 创建社区员工
+
+    const userCredential = new UserCredential();
+    userCredential.subjectType = SubjectTypeEnum.Member;
+    userCredential.credentialType = CredentialTypeEnum.Password;
+    userCredential.credential = await bcrypt.hash(dto.password, 10);
+
     const communityStaff = new CommunityStaff();
     communityStaff.phone = dto.phone;
     communityStaff.isActive = dto.isActive ?? true;

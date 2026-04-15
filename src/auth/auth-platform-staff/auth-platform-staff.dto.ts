@@ -7,7 +7,7 @@ export class AuthPlatformStaffDto {
   @IsString({ message: '手机号必须是字符串' })
   phone: string;
 
-  @ApiProperty({ description: '密码', example: '123456' })
+  @ApiProperty({ description: '密码', example: 'admin123' })
   @IsNotEmpty({ message: '密码不能为空' })
   @IsString({ message: '密码必须是字符串' })
   password: string;
