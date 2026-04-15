@@ -20,12 +20,13 @@ import {
   ApiBearerAuth,
 } from '@nestjs/swagger';
 
-import { Public } from '../../auth/AllowAnon.decorator';
+import { Public, RequiresAny } from '../../auth/AllowAnon.decorator';
 
 // Commands Services
 import { CreateMemberService } from './commands/create-member/create-member.service';
 import { UpdateMemberService } from './commands/update-member/update-member.service';
 import { DeleteMemberService } from './commands/delete-member/delete-member.service';
+import { BindPasskeyMemberService } from './commands/bindpasskey-member/bindpasskey-member.service';
 
 // Queries Services
 import { GetMemberService } from './queries/get-member/get-member.service';
@@ -37,6 +38,7 @@ import { CreateMemberDto } from './commands/create-member/create-member.dto';
 import { UpdateMemberDto } from './commands/update-member/update-member.dto';
 import { ListMembersDto } from './queries/list-members/list-members.dto';
 import { SearchMembersDto } from './queries/search-members/search-members.dto';
+import { BindPasskeyMemberDto } from './commands/bindpasskey-member/bindpasskey-member.dto';
 import { ApiPageResponse } from '@/common/interface/response.interface';
 
 // Entities
@@ -54,6 +56,7 @@ export class MembersController {
     private readonly getMemberService: GetMemberService,
     private readonly listMembersService: ListMembersService,
     private readonly searchMembersService: SearchMembersService,
+    private readonly bindPasskeyMemberService: BindPasskeyMemberService,
   ) {}
 
   @Public()
@@ -129,6 +132,22 @@ export class MembersController {
     @Body() updateMemberDto: UpdateMemberDto,
   ): Promise<Member> {
     return await this.updateMemberService.execute(id, updateMemberDto);
+  }
+
+  @Public()
+  @Post(':id/bindpasskey')
+  @ApiOperation({ summary: '绑定会员密钥' })
+  @ApiResponse({ status: 200, description: '会员密钥绑定成功', type: Member })
+  @ApiResponse({ status: 404, description: '会员不存在' })
+  @ApiResponse({ status: 409, description: '密钥已存在' })
+  async bindPasskey(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() bindPasskeyMemberDto: BindPasskeyMemberDto,
+  ): Promise<Member> {
+    return await this.bindPasskeyMemberService.execute(
+      id,
+      bindPasskeyMemberDto,
+    );
   }
 
   @Delete(':id')

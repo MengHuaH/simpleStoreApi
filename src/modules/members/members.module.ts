@@ -7,6 +7,7 @@ import { MembersController } from './members.controller';
 import { CreateMemberService } from './commands/create-member/create-member.service';
 import { UpdateMemberService } from './commands/update-member/update-member.service';
 import { DeleteMemberService } from './commands/delete-member/delete-member.service';
+import { BindPasskeyMemberService } from './commands/bindpasskey-member/bindpasskey-member.service';
 
 // Queries (查询操作)
 import { GetMemberService } from './queries/get-member/get-member.service';
@@ -27,6 +28,7 @@ import { MemberRepository } from './shared/member.repository';
     CreateMemberService,
     UpdateMemberService,
     DeleteMemberService,
+    BindPasskeyMemberService,
 
     // Queries
     GetMemberService,
@@ -40,6 +42,7 @@ import { MemberRepository } from './shared/member.repository';
     GetMemberService,
     ListMembersService,
     SearchMembersService,
+    BindPasskeyMemberService,
   ],
 })
 export class MembersModule {}

@@ -26,6 +26,7 @@ import { Public } from '../../auth/AllowAnon.decorator';
 import { CreateCommunityStaffService } from './commands/create-community-staff/create-community-staff.service';
 import { UpdateCommunityStaffService } from './commands/update-community-staff/update-community-staff.service';
 import { DeleteCommunityStaffService } from './commands/delete-community-staff/delete-community-staff.service';
+import { BindPasskeyCommunityStaffService } from './commands/bindpasskey-community-staff/bindpasskey-community-staff.service';
 
 // Queries Services
 import { GetCommunityStaffService } from './queries/get-community-staff/get-community-staff.service';
@@ -37,6 +38,7 @@ import { CreateCommunityStaffDto } from './commands/create-community-staff/creat
 import { UpdateCommunityStaffDto } from './commands/update-community-staff/update-community-staff.dto';
 import { ListCommunityStaffsDto } from './queries/list-community-staffs/list-community-staffs.dto';
 import { SearchCommunityStaffsDto } from './queries/search-community-staffs/search-community-staffs.dto';
+import { BindPasskeyCommunityStaffDto } from './commands/bindpasskey-community-staff/bindpasskey-community-staff.dto';
 
 // Entities
 import { CommunityStaff } from '../../entities/communityStaff.entity';
@@ -51,6 +53,7 @@ export class CommunityStaffsController {
     private readonly createCommunityStaffService: CreateCommunityStaffService,
     private readonly updateCommunityStaffService: UpdateCommunityStaffService,
     private readonly deleteCommunityStaffService: DeleteCommunityStaffService,
+    private readonly bindPasskeyCommunityStaffService: BindPasskeyCommunityStaffService,
     // Queries
     private readonly getCommunityStaffService: GetCommunityStaffService,
     private readonly listCommunityStaffsService: ListCommunityStaffsService,
@@ -109,6 +112,21 @@ export class CommunityStaffsController {
   ) {
     await this.updateCommunityStaffService.execute(id, updateCommunityStaffDto);
     return { success: true, message: '社区员工信息更新成功' };
+  }
+
+  @Post(':id/bindpasskey')
+  @ApiOperation({ summary: '绑定社区员工密钥' })
+  @ApiResponse({ status: 200, description: '社区员工密钥绑定成功' })
+  async bindPasskey(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body(new ValidationPipe())
+    bindPasskeyCommunityStaffDto: BindPasskeyCommunityStaffDto,
+  ) {
+    await this.bindPasskeyCommunityStaffService.execute(
+      id,
+      bindPasskeyCommunityStaffDto,
+    );
+    return { success: true, message: '社区员工密钥绑定成功' };
   }
 
   @Delete(':id')

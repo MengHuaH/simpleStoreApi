@@ -7,6 +7,7 @@ import { PlatformStaffsController } from './platform-staffs.controller';
 import { CreatePlatformStaffService } from './commands/create-platform-staff/create-platform-staff.service';
 import { UpdatePlatformStaffService } from './commands/update-platform-staff/update-platform-staff.service';
 import { DeletePlatformStaffService } from './commands/delete-platform-staff/delete-platform-staff.service';
+import { BindPasskeyPlatformStaffService } from './commands/bindpasskey-platform-staff/bindpasskey-platform-staff.service';
 
 // Queries (查询操作)
 import { GetPlatformStaffService } from './queries/get-platform-staff/get-platform-staff.service';
@@ -27,6 +28,7 @@ import { PlatformStaffRepository } from './shared/platform-staff.repository';
     CreatePlatformStaffService,
     UpdatePlatformStaffService,
     DeletePlatformStaffService,
+    BindPasskeyPlatformStaffService,
 
     // Queries
     GetPlatformStaffService,

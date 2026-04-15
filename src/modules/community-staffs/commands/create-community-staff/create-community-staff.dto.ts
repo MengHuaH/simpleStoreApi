@@ -20,9 +20,4 @@ export class CreateCommunityStaffDto {
   @IsString({ message: '社区员工密码必须是字符串' })
   @MinLength(6, { message: '社区员工密码长度不能少于6位' })
   password: string;
-
-  @ApiProperty({ example: true, description: '是否激活', required: false })
-  @IsOptional()
-  @IsBoolean()
-  isActive?: boolean;
 }

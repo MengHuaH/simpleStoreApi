@@ -7,6 +7,7 @@ import { CommunityStaffsController } from './community-staffs.controller';
 import { CreateCommunityStaffService } from './commands/create-community-staff/create-community-staff.service';
 import { UpdateCommunityStaffService } from './commands/update-community-staff/update-community-staff.service';
 import { DeleteCommunityStaffService } from './commands/delete-community-staff/delete-community-staff.service';
+import { BindPasskeyCommunityStaffService } from './commands/bindpasskey-community-staff/bindpasskey-community-staff.service';
 
 // Queries (查询操作)
 import { GetCommunityStaffService } from './queries/get-community-staff/get-community-staff.service';
@@ -27,6 +28,7 @@ import { CommunityStaffRepository } from './shared/community-staff.repository';
     CreateCommunityStaffService,
     UpdateCommunityStaffService,
     DeleteCommunityStaffService,
+    BindPasskeyCommunityStaffService,
 
     // Queries
     GetCommunityStaffService,

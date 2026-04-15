@@ -26,6 +26,7 @@ import { RequiresPlatformStaff } from '../../auth/AllowAnon.decorator';
 import { CreatePlatformStaffService } from './commands/create-platform-staff/create-platform-staff.service';
 import { UpdatePlatformStaffService } from './commands/update-platform-staff/update-platform-staff.service';
 import { DeletePlatformStaffService } from './commands/delete-platform-staff/delete-platform-staff.service';
+import { BindPasskeyPlatformStaffService } from './commands/bindpasskey-platform-staff/bindpasskey-platform-staff.service';
 
 // Queries Services
 import { GetPlatformStaffService } from './queries/get-platform-staff/get-platform-staff.service';
@@ -37,6 +38,7 @@ import { CreatePlatformStaffDto } from './commands/create-platform-staff/create-
 import { UpdatePlatformStaffDto } from './commands/update-platform-staff/update-platform-staff.dto';
 import { ListPlatformStaffsDto } from './queries/list-platform-staffs/list-platform-staffs.dto';
 import { SearchPlatformStaffsDto } from './queries/search-platform-staffs/search-platform-staffs.dto';
+import { BindPasskeyPlatformStaffDto } from './commands/bindpasskey-platform-staff/bindpasskey-platform-staff.dto';
 
 // Entities
 import { PlatformStaff } from '../../entities/platformStaff.entity';
@@ -51,6 +53,7 @@ export class PlatformStaffsController {
     private readonly createPlatformStaffService: CreatePlatformStaffService,
     private readonly updatePlatformStaffService: UpdatePlatformStaffService,
     private readonly deletePlatformStaffService: DeletePlatformStaffService,
+    private readonly bindPasskeyPlatformStaffService: BindPasskeyPlatformStaffService,
     // Queries
     private readonly getPlatformStaffService: GetPlatformStaffService,
     private readonly listPlatformStaffsService: ListPlatformStaffsService,
@@ -112,6 +115,22 @@ export class PlatformStaffsController {
   ) {
     await this.updatePlatformStaffService.execute(id, updatePlatformStaffDto);
     return { success: true, message: '平台员工信息更新成功' };
+  }
+
+  @RequiresPlatformStaff()
+  @Post(':id/bind-passkey')
+  @ApiOperation({ summary: '绑定平台员工密钥' })
+  @ApiResponse({ status: 200, description: '平台员工密钥绑定成功' })
+  async bindPasskey(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body(new ValidationPipe())
+    bindPasskeyPlatformStaffDto: BindPasskeyPlatformStaffDto,
+  ) {
+    await this.bindPasskeyPlatformStaffService.execute(
+      id,
+      bindPasskeyPlatformStaffDto,
+    );
+    return { success: true, message: '平台员工密钥绑定成功' };
   }
 
   @RequiresPlatformStaff()
