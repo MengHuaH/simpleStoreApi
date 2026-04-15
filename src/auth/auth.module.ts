@@ -6,6 +6,7 @@ import { jwtConstants } from './constants';
 import { AuthGuard } from './auth.guard';
 import { APP_GUARD } from '@nestjs/core';
 import { UsersModule } from '@/modules/users/users.module';
+import { MembersModule } from '@/modules/members/members.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { User } from '@/entities/user.entity';
 import { CacheModule } from '@/cache/cache.module';
@@ -15,6 +16,7 @@ import { ConfigModule } from '@nestjs/config';
   imports: [
     TypeOrmModule.forFeature([User]),
     UsersModule,
+    MembersModule,
     JwtModule.register({
       global: true,
       secret: jwtConstants.secret,

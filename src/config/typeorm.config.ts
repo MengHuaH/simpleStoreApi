@@ -1,6 +1,13 @@
 import { TypeOrmModuleOptions } from '@nestjs/typeorm';
-import { BaseEntity } from '../entities/base.entity';
-import { User } from '../entities/user.entity';
+import {
+  User,
+  BaseEntity,
+  Member,
+  CommunityStaff,
+  PlatformStaff,
+  UserSession,
+  UserCredential,
+} from '../entities';
 
 export const typeOrmConfig: TypeOrmModuleOptions = {
   type: 'mysql',
@@ -9,7 +16,15 @@ export const typeOrmConfig: TypeOrmModuleOptions = {
   username: process.env.DB_USERNAME || 'root',
   password: process.env.DB_PASSWORD || '123456',
   database: process.env.DB_DATABASE || 'elec_db',
-  entities: [BaseEntity, User],
+  entities: [
+    BaseEntity,
+    User,
+    UserSession,
+    Member,
+    CommunityStaff,
+    PlatformStaff,
+    UserCredential,
+  ],
   synchronize: process.env.NODE_ENV !== 'production',
   logging: process.env.NODE_ENV !== 'production',
   charset: 'utf8mb4',
