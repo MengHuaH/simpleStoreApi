@@ -11,7 +11,7 @@ import { ApiResponse } from '@/common/interface/response.interface';
 import { CredentialTypeEnum } from '../../entities/enums';
 
 @Injectable()
-export class AuthUserService {
+export class AuthMemberService {
   constructor(
     @InjectRepository(Member)
     private readonly repository: Repository<Member>,

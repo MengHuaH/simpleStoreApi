@@ -21,8 +21,8 @@ import {
   ApiBearerAuth,
 } from '@nestjs/swagger';
 
-import { AuthUserService } from './auth-user/auth-user.service';
-import { AuthUserDto } from './auth-user/auth-user.dto';
+import { AuthMemberService } from './auth-member/auth-member.service';
+import { AuthMemberDto } from './auth-member/auth-member.dto';
 import { Public } from './AllowAnon.decorator';
 import { ApiResponse as ApiResponseInterface } from '@/common/interface/response.interface';
 
@@ -30,7 +30,7 @@ import { ApiResponse as ApiResponseInterface } from '@/common/interface/response
 @ApiTags('auth')
 @Controller('auth')
 export class AuthController {
-  constructor(private readonly authUserService: AuthUserService) {}
+  constructor(private readonly authMemberService: AuthMemberService) {}
 
   @Public()
   @Post()
@@ -42,9 +42,9 @@ export class AuthController {
   @ApiResponse({ status: 400, description: '请求参数错误' })
   @ApiResponse({ status: 404, description: '会员不存在' })
   async login(
-    @Body() loginDto: AuthUserDto,
+    @Body() loginDto: AuthMemberDto,
   ): Promise<ApiResponseInterface<{ access_token: string }>> {
-    return await this.authUserService.execute(
+    return await this.authMemberService.execute(
       loginDto.phone,
       loginDto.password,
     );
@@ -60,6 +60,6 @@ export class AuthController {
   @ApiResponse({ status: 400, description: '请求参数错误' })
   @ApiResponse({ status: 401, description: 'token无效' })
   async logout(@Req() req: Request) {
-    return await this.authUserService.logout(req);
+    return await this.authMemberService.logout(req);
   }
 }
