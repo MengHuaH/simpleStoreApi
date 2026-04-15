@@ -1,4 +1,4 @@
-import { IsNotEmpty, IsString } from 'class-validator';
+import { IsNotEmpty, IsString, IsOptional } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class AuthMemberDto {
@@ -11,4 +11,13 @@ export class AuthMemberDto {
   @IsNotEmpty({ message: '密码不能为空' })
   @IsString({ message: '密码必须是字符串' })
   password: string;
+
+  @ApiProperty({
+    description: 'OTP验证码（可选，如果启用OTP验证则需要提供）',
+    example: '123456',
+    required: false,
+  })
+  @IsOptional()
+  @IsString({ message: '验证码必须是字符串' })
+  otpCode?: string;
 }

@@ -58,6 +58,7 @@ export class AuthController {
     return await this.authMemberService.execute(
       loginDto.phone,
       loginDto.password,
+      loginDto.otpCode,
     );
   }
 
@@ -77,6 +78,7 @@ export class AuthController {
     return await this.authCommunityStaffService.execute(
       loginDto.phone,
       loginDto.password,
+      loginDto.otpCode,
     );
   }
 
@@ -96,6 +98,7 @@ export class AuthController {
     return await this.authPlatformStaffService.execute(
       loginDto.phone,
       loginDto.password,
+      loginDto.otpCode,
     );
   }
 

@@ -1,4 +1,9 @@
-import { HttpStatus, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  HttpStatus,
+  Injectable,
+  NotFoundException,
+  BadRequestException,
+} from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -8,8 +13,9 @@ import { ConfigService } from '@nestjs/config';
 import { successResponse } from '@/common/utils/response.util';
 import { BusinessException } from '@/common/exceptions/business.exception';
 import { ApiResponse } from '@/common/interface/response.interface';
-import { CredentialTypeEnum } from '../../entities/enums';
+import { CredentialTypeEnum, SubjectTypeEnum } from '../../entities/enums';
 import { AuthLogoutService } from '../shared/auth-logout.service';
+import { OtpService } from '@/otp/otp.service';
 import * as bcrypt from 'bcrypt';
 
 @Injectable()
@@ -21,11 +27,13 @@ export class AuthMemberService {
     private cacheService: CacheService,
     private configService: ConfigService,
     private authLogoutService: AuthLogoutService,
+    private otpService: OtpService,
   ) {}
 
   async execute(
     phone: string,
     password: string,
+    otpCode?: string,
   ): Promise<ApiResponse<{ access_token: string }>> {
     let member = await this.repository.findOne({
       where: { phone },
@@ -46,6 +54,20 @@ export class AuthMemberService {
         401,
         HttpStatus.UNAUTHORIZED,
       );
+    }
+
+    // OTP验证
+    if (otpCode) {
+      try {
+        await this.otpService.verifyOtp({
+          phone,
+          code: otpCode,
+          subjectType: SubjectTypeEnum.Member,
+          scenario: 'login',
+        });
+      } catch (error) {
+        throw new BadRequestException(`OTP验证失败: ${error.message}`);
+      }
     }
 
     const payload = { sub: member.id, phone: member.phone };
