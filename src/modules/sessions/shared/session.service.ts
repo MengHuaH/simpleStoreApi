@@ -1,10 +1,14 @@
 import { Injectable } from '@nestjs/common';
 import { SubjectTypeEnum } from '@/entities/enums';
 import { SessionRepository } from './session.repository';
+import { CacheService } from '@/cache/cache.service';
 
 @Injectable()
 export class SessionService {
-  constructor(private readonly sessionRepository: SessionRepository) {}
+  constructor(
+    private readonly sessionRepository: SessionRepository,
+    private readonly cacheService: CacheService,
+  ) {}
 
   /**
    * 创建新会话
@@ -44,13 +48,20 @@ export class SessionService {
    * 使会话失效
    */
   async invalidateSession(token: string) {
+    // 先删除Redis中的token缓存
+    await this.deleteTokenFromCache(token);
+
+    // 再使数据库中的会话失效
     return await this.sessionRepository.invalidateSession(token);
   }
 
   /**
    * 使用户的所有会话失效
    */
-  async invalidateAllUserSessions(userId: string, subjectType: SubjectTypeEnum) {
+  async invalidateAllUserSessions(
+    userId: string,
+    subjectType: SubjectTypeEnum,
+  ) {
     return await this.sessionRepository.invalidateAllUserSessions(
       userId,
       subjectType,
@@ -69,5 +80,22 @@ export class SessionService {
    */
   async getSessionStats(userId: string, subjectType: SubjectTypeEnum) {
     return await this.sessionRepository.getSessionStats(userId, subjectType);
+  }
+
+  /**
+   * 从Redis中删除token缓存
+   */
+  private async deleteTokenFromCache(token: string): Promise<void> {
+    // 尝试删除所有可能的缓存键
+    const cacheKeys = [
+      `auth:${token}`,
+      `auth:member:${token}`,
+      `auth:community_staff:${token}`,
+      `auth:platform_staff:${token}`,
+    ];
+
+    for (const cacheKey of cacheKeys) {
+      await this.cacheService.delete(cacheKey);
+    }
   }
 }
