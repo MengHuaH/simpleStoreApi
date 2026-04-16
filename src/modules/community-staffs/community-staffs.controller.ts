@@ -62,10 +62,15 @@ export class CommunityStaffsController {
 
   @Post()
   @ApiOperation({ summary: '创建社区员工' })
-  @ApiResponse({ status: 201, description: '社区员工创建成功' })
-  @ApiSuccessResponse(CommunityStaff, '社区员工创建成功')
+  @ApiResponse({
+    status: 201,
+    description: '社区员工创建成功',
+    type: CommunityStaff,
+  })
+  @ApiResponse({ status: 400, description: '请求参数错误' })
+  @ApiResponse({ status: 409, description: '手机号已存在' })
   async create(
-    @Body(new ValidationPipe())
+    @Body()
     createCommunityStaffDto: CreateCommunityStaffDto,
   ): Promise<CommunityStaff> {
     return this.createCommunityStaffService.execute(createCommunityStaffDto);

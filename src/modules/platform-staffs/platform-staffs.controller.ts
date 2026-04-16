@@ -62,11 +62,15 @@ export class PlatformStaffsController {
 
   @RequiresPlatformStaff()
   @Post()
-  @ApiOperation({ summary: '创建平台员工' })
-  @ApiResponse({ status: 201, description: '平台员工创建成功' })
-  @ApiSuccessResponse(PlatformStaff, '平台员工创建成功')
+  @ApiResponse({
+    status: 201,
+    description: '平台员工创建成功',
+    type: PlatformStaff,
+  })
+  @ApiResponse({ status: 400, description: '请求参数错误' })
+  @ApiResponse({ status: 409, description: '手机号已存在' })
   async create(
-    @Body(new ValidationPipe()) createPlatformStaffDto: CreatePlatformStaffDto,
+    @Body() createPlatformStaffDto: CreatePlatformStaffDto,
   ): Promise<PlatformStaff> {
     return this.createPlatformStaffService.execute(createPlatformStaffDto);
   }

@@ -49,7 +49,7 @@ export class AuthController {
     summary: '会员登录',
     description: '会员登录，需提供手机号、密码',
   })
-  @ApiResponse({ status: 200, description: '登录成功' })
+  @ApiResponse({ status: 201, description: '登录成功' })
   @ApiResponse({ status: 400, description: '请求参数错误' })
   @ApiResponse({ status: 404, description: '会员不存在' })
   async loginMember(
@@ -73,7 +73,7 @@ export class AuthController {
     summary: '社区员工登录',
     description: '社区员工登录，需提供手机号、密码',
   })
-  @ApiResponse({ status: 200, description: '登录成功' })
+  @ApiResponse({ status: 201, description: '登录成功' })
   @ApiResponse({ status: 400, description: '请求参数错误' })
   @ApiResponse({ status: 404, description: '社区员工不存在' })
   async loginCommunityStaff(
@@ -97,7 +97,7 @@ export class AuthController {
     summary: '平台员工登录',
     description: '平台员工登录，需提供手机号、密码',
   })
-  @ApiResponse({ status: 200, description: '登录成功' })
+  @ApiResponse({ status: 201, description: '登录成功' })
   @ApiResponse({ status: 400, description: '请求参数错误' })
   @ApiResponse({ status: 404, description: '平台员工不存在' })
   async loginPlatformStaff(
@@ -134,9 +134,11 @@ export class AuthController {
   private generateDeviceId(req: Request): string {
     const userAgent = req.headers['user-agent'] || 'unknown';
     const ipAddress = this.getClientIp(req);
-    
+
     // 简化的设备指纹生成
-    const fingerprint = Buffer.from(`${userAgent}:${ipAddress}`).toString('base64');
+    const fingerprint = Buffer.from(`${userAgent}:${ipAddress}`).toString(
+      'base64',
+    );
     return fingerprint.substring(0, 32); // 限制长度
   }
 
@@ -145,9 +147,8 @@ export class AuthController {
    */
   private getClientIp(req: Request): string {
     // 从常见HTTP头中获取IP地址
-    const ip = req.headers['x-forwarded-for'] || 
-               req.headers['x-real-ip'] || 
-               'unknown';
+    const ip =
+      req.headers['x-forwarded-for'] || req.headers['x-real-ip'] || 'unknown';
     return Array.isArray(ip) ? ip[0] : ip;
   }
 }

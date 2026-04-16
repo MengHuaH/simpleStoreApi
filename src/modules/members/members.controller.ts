@@ -89,7 +89,6 @@ export class MembersController {
   @ApiResponse({
     status: 200,
     description: '会员列表获取成功',
-    type: Array<Member>,
   })
   async findAll(@Query() listMembersDto: ListMembersDto) {
     return await this.listMembersService.execute(listMembersDto);
