@@ -42,7 +42,11 @@ import { BindPasskeyPlatformStaffDto } from './commands/bindpasskey-platform-sta
 
 // Entities
 import { PlatformStaff } from '../../entities/platformStaff.entity';
-import { ApiSuccessResponse } from '@/common/decorators/api-response.decorator';
+import {
+  ApiCustomizeResponse,
+  ApiCreatedSuccessResponse,
+  ApiSuccessResponse,
+} from '@/common/decorators/api-response.decorator';
 
 @ApiBearerAuth()
 @ApiTags('platform-staffs')
@@ -62,10 +66,14 @@ export class PlatformStaffsController {
 
   @RequiresPlatformStaff()
   @Post()
-  @ApiResponse({
-    status: 201,
-    description: '平台员工创建成功',
-    type: PlatformStaff,
+  @ApiCreatedSuccessResponse({
+    model: PlatformStaff,
+    description: '平台员工密钥绑定成功',
+  })
+  @ApiCustomizeResponse({
+    model: PlatformStaff,
+    code: 200,
+    description: '平台员工密钥绑定成功',
   })
   @ApiResponse({ status: 400, description: '请求参数错误' })
   @ApiResponse({ status: 409, description: '手机号已存在' })
@@ -126,17 +134,26 @@ export class PlatformStaffsController {
   @RequiresPlatformStaff()
   @Post(':id/bind-passkey')
   @ApiOperation({ summary: '绑定平台员工密钥' })
+  @ApiCreatedSuccessResponse({
+    model: PlatformStaff,
+    description: '平台员工密钥绑定成功',
+  })
+  @ApiCustomizeResponse({
+    model: PlatformStaff,
+    code: 200,
+    description: '平台员工密钥绑定成功',
+  })
   @ApiResponse({ status: 200, description: '平台员工密钥绑定成功' })
   async bindPasskey(
     @Param('id', ParseUUIDPipe) id: string,
     @Body(new ValidationPipe())
     bindPasskeyPlatformStaffDto: BindPasskeyPlatformStaffDto,
   ) {
-    await this.bindPasskeyPlatformStaffService.execute(
+    const platformStaff = await this.bindPasskeyPlatformStaffService.execute(
       id,
       bindPasskeyPlatformStaffDto,
     );
-    return { success: true, message: '平台员工密钥绑定成功' };
+    return platformStaff;
   }
 
   @RequiresPlatformStaff()

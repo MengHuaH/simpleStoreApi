@@ -15,6 +15,7 @@ export class BindPasskeyMemberService {
     bindPasskeyMemberDto: BindPasskeyMemberDto,
   ): Promise<Member> {
     // 查找用户
+    console.log(id);
     const member = await this.memberRepository.findById(id);
     if (!member) {
       throw new NotFoundException(`用户 ID ${id} 不存在`);
@@ -24,15 +25,33 @@ export class BindPasskeyMemberService {
       throw new Error('用户未激活');
     }
 
-    // 绑定用户密钥
-    const userCredential = new UserCredential();
-    userCredential.subjectType = SubjectTypeEnum.Member;
-    userCredential.credentialType = CredentialTypeEnum.PassKey;
-    userCredential.credential = await bcrypt.hash(
-      bindPasskeyMemberDto.passkey,
-      10,
+    // 绑定用户密钥 - 检查是否已存在PassKey凭证
+    const memberUserCredentials = member.userCredential || [];
+
+    // 查找是否已存在PassKey类型的凭证
+    let passkeyCredential = memberUserCredentials.find(
+      (cred) => cred.credentialType === CredentialTypeEnum.PassKey,
     );
-    member.userCredential.push(userCredential);
+
+    if (passkeyCredential) {
+      // 如果已存在，则更新凭证
+      passkeyCredential.credential = await bcrypt.hash(
+        bindPasskeyMemberDto.passkey,
+        10,
+      );
+    } else {
+      // 如果不存在，则创建新凭证
+      passkeyCredential = new UserCredential();
+      passkeyCredential.subjectType = SubjectTypeEnum.Member;
+      passkeyCredential.credentialType = CredentialTypeEnum.PassKey;
+      passkeyCredential.credential = await bcrypt.hash(
+        bindPasskeyMemberDto.passkey,
+        10,
+      );
+      memberUserCredentials.push(passkeyCredential);
+    }
+
+    member.userCredential = [...memberUserCredentials];
 
     return await this.memberRepository.save(member);
   }

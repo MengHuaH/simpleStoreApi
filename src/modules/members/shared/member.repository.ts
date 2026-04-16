@@ -11,7 +11,10 @@ export class MemberRepository {
   ) {}
 
   async findById(id: string): Promise<Member | null> {
-    return this.repository.findOne({ where: { id } });
+    return this.repository.findOne({
+      where: { id },
+      relations: ['userCredential'],
+    });
   }
 
   async findOne(phone: string): Promise<Member | null> {

@@ -42,7 +42,11 @@ import { BindPasskeyCommunityStaffDto } from './commands/bindpasskey-community-s
 
 // Entities
 import { CommunityStaff } from '../../entities/communityStaff.entity';
-import { ApiSuccessResponse } from '@/common/decorators/api-response.decorator';
+import {
+  ApiCreatedSuccessResponse,
+  ApiCustomizeResponse,
+  ApiSuccessResponse,
+} from '@/common/decorators/api-response.decorator';
 
 @ApiBearerAuth()
 @ApiTags('community-staffs')
@@ -62,10 +66,14 @@ export class CommunityStaffsController {
 
   @Post()
   @ApiOperation({ summary: '创建社区员工' })
-  @ApiResponse({
-    status: 201,
+  @ApiCreatedSuccessResponse({
+    model: CommunityStaff,
     description: '社区员工创建成功',
-    type: CommunityStaff,
+  })
+  @ApiCustomizeResponse({
+    model: CommunityStaff,
+    code: 200,
+    description: '社区员工创建成功',
   })
   @ApiResponse({ status: 400, description: '请求参数错误' })
   @ApiResponse({ status: 409, description: '手机号已存在' })
@@ -123,17 +131,25 @@ export class CommunityStaffsController {
 
   @Post(':id/bindpasskey')
   @ApiOperation({ summary: '绑定社区员工密钥' })
-  @ApiResponse({ status: 200, description: '社区员工密钥绑定成功' })
+  @ApiCreatedSuccessResponse({
+    model: CommunityStaff,
+    description: '社区员工密钥绑定成功',
+  })
+  @ApiCustomizeResponse({
+    model: CommunityStaff,
+    code: 200,
+    description: '社区员工密钥绑定成功',
+  })
   async bindPasskey(
     @Param('id', ParseUUIDPipe) id: string,
     @Body(new ValidationPipe())
     bindPasskeyCommunityStaffDto: BindPasskeyCommunityStaffDto,
   ) {
-    await this.bindPasskeyCommunityStaffService.execute(
+    const communityStaff = await this.bindPasskeyCommunityStaffService.execute(
       id,
       bindPasskeyCommunityStaffDto,
     );
-    return { success: true, message: '社区员工密钥绑定成功' };
+    return communityStaff;
   }
 
   @Delete(':id')

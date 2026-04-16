@@ -43,7 +43,10 @@ import { ApiPageResponse } from '@/common/interface/response.interface';
 
 // Entities
 import { Member } from '../../entities/member.entity';
-import { ApiSuccessResponse } from '@/common/decorators/api-response.decorator';
+import {
+  ApiCustomizeResponse,
+  ApiCreatedSuccessResponse,
+} from '@/common/decorators/api-response.decorator';
 
 @ApiBearerAuth()
 @ApiTags('members')
@@ -65,7 +68,15 @@ export class MembersController {
     summary: '创建会员',
     description: '创建新会员，需提供手机号、密码',
   })
-  @ApiResponse({ status: 201, description: '会员创建成功', type: Member })
+  @ApiCreatedSuccessResponse({
+    model: Member,
+    description: '会员创建成功',
+  })
+  @ApiCustomizeResponse({
+    model: Member,
+    code: 200,
+    description: '会员创建成功',
+  })
   @ApiResponse({ status: 400, description: '请求参数错误' })
   @ApiResponse({ status: 409, description: '手机号已存在' })
   async create(@Body() createMemberDto: CreateMemberDto): Promise<Member> {
@@ -136,7 +147,15 @@ export class MembersController {
   @Public()
   @Post(':id/bindpasskey')
   @ApiOperation({ summary: '绑定会员密钥' })
-  @ApiResponse({ status: 200, description: '会员密钥绑定成功', type: Member })
+  @ApiCreatedSuccessResponse({
+    model: Member,
+    description: '会员密钥绑定成功',
+  })
+  @ApiCustomizeResponse({
+    model: Member,
+    code: 200,
+    description: '会员密钥绑定成功',
+  })
   @ApiResponse({ status: 404, description: '会员不存在' })
   @ApiResponse({ status: 409, description: '密钥已存在' })
   async bindPasskey(
