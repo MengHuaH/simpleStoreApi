@@ -49,6 +49,9 @@ async function bootstrap() {
     credentials: true,
   });
 
+  // 为所有接口添加 /api 前缀
+  app.setGlobalPrefix('api');
+
   const config = new DocumentBuilder()
     .setTitle('Simple Store API')
     .setDescription('The Simple Store API description')
@@ -60,9 +63,11 @@ async function bootstrap() {
     })
     .build();
   const document = SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup('api', app, document);
+
+  // 设置 Swagger UI 端点，注意路径要包含 /api 前缀
   SwaggerModule.setup('swagger', app, document, {
     jsonDocumentUrl: 'swagger/json',
+    customSiteTitle: 'Simple Store API Documentation',
   });
   await app.listen(process.env.PORT ?? 3000);
 
