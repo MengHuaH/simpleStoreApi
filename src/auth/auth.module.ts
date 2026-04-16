@@ -4,6 +4,7 @@ import { AuthMemberService } from './auth-member/auth-member.service';
 import { AuthCommunityStaffService } from './auth-community-staff/auth-community-staff.service';
 import { AuthPlatformStaffService } from './auth-platform-staff/auth-platform-staff.service';
 import { AuthLogoutService } from './shared/auth-logout.service';
+import { PasskeyService } from './shared/passkey.service';
 import { OtpModule } from '@/otp/otp.module';
 import { JwtModule } from '@nestjs/jwt';
 import { jwtConstants } from './constants';
@@ -59,6 +60,7 @@ import { SessionsModule } from '@/modules/sessions/sessions.module';
     AuthCommunityStaffService,
     AuthPlatformStaffService,
     AuthLogoutService,
+    PasskeyService,
     { provide: APP_GUARD, useClass: AuthGuard },
   ],
   exports: [

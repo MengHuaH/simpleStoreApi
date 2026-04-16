@@ -61,6 +61,7 @@ export class AuthController {
       loginDto.phone,
       loginDto.password,
       loginDto.otpCode,
+      loginDto.passkey,
       deviceId,
     );
   }
@@ -84,6 +85,7 @@ export class AuthController {
       loginDto.phone,
       loginDto.password,
       loginDto.otpCode,
+      loginDto.passkey,
       deviceId,
     );
   }
@@ -107,6 +109,7 @@ export class AuthController {
       loginDto.phone,
       loginDto.password,
       loginDto.otpCode,
+      loginDto.passkey,
       deviceId,
     );
   }

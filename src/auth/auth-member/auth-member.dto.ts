@@ -20,4 +20,17 @@ export class AuthMemberDto {
   @IsOptional()
   @IsString({ message: '验证码必须是字符串' })
   otpCode?: string;
+
+  @ApiProperty({
+    description: 'Passkey认证数据（与密码二选一）',
+    example: {
+      credentialId: 'credential-id',
+      authenticatorData: 'auth-data',
+      clientDataJSON: 'client-data',
+      signature: 'signature',
+    },
+    required: false,
+  })
+  @IsOptional()
+  passkey?: any;
 }

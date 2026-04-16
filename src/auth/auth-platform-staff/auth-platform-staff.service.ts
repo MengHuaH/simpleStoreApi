@@ -17,6 +17,7 @@ import { CredentialTypeEnum, SubjectTypeEnum } from '../../entities/enums';
 import { AuthLogoutService } from '../shared/auth-logout.service';
 import { OtpService } from '@/otp/otp.service';
 import { SessionService } from '@/modules/sessions/shared/session.service';
+import { PasskeyService } from '../shared/passkey.service';
 import * as bcrypt from 'bcrypt';
 
 @Injectable()
@@ -30,12 +31,14 @@ export class AuthPlatformStaffService {
     private authLogoutService: AuthLogoutService,
     private otpService: OtpService,
     private sessionService: SessionService,
+    private passkeyService: PasskeyService,
   ) {}
 
   async execute(
     phone: string,
     password: string,
     otpCode?: string,
+    passkey?: any,
     deviceId: string = 'unknown',
   ): Promise<ApiResponse<{ access_token: string }>> {
     let platformStaff = await this.repository.findOne({
@@ -45,18 +48,43 @@ export class AuthPlatformStaffService {
     if (!platformStaff) {
       throw new NotFoundException(`平台员工手机号${phone}不存在`);
     }
-    const passwordItem = platformStaff.userCredential.find(
-      (item) => item.credentialType === CredentialTypeEnum.Password,
-    );
-    if (
-      passwordItem &&
-      !(await bcrypt.compare(password, passwordItem!.credential))
-    ) {
-      throw new BusinessException(
-        `手机号或密码错误`,
-        401,
-        HttpStatus.UNAUTHORIZED,
+
+    let token: string;
+
+    // Passkey登录
+    if (passkey) {
+      if (password) {
+        throw new BadRequestException('Passkey和密码不能同时提供');
+      }
+
+      const result = await this.passkeyService.verifyPasskeyLogin(
+        phone,
+        passkey,
+        SubjectTypeEnum.PlatformStaff,
       );
+      token = result.token;
+    } else {
+      // 传统密码登录
+      const passwordItem = platformStaff.userCredential.find(
+        (item) => item.credentialType === CredentialTypeEnum.Password,
+      );
+      if (
+        passwordItem &&
+        !(await bcrypt.compare(password, passwordItem!.credential))
+      ) {
+        throw new BusinessException(
+          `手机号或密码错误`,
+          401,
+          HttpStatus.UNAUTHORIZED,
+        );
+      }
+
+      const payload = {
+        sub: platformStaff.id,
+        phone: platformStaff.phone,
+        subjectType: SubjectTypeEnum.PlatformStaff,
+      };
+      token = await this.jwtService.signAsync(payload);
     }
 
     // OTP验证
@@ -73,21 +101,23 @@ export class AuthPlatformStaffService {
       }
     }
 
-    const payload = {
-      sub: platformStaff.id,
-      phone: platformStaff.phone,
-      subjectType: SubjectTypeEnum.PlatformStaff,
-    };
-    const token = await this.jwtService.signAsync(payload);
     const cacheKey = `auth:platform_staff:${token}`;
     const ttl = this.configService.get('cache.ttl.long');
-    await this.cacheService.set(cacheKey, payload, {
-      ttl,
-    });
+    await this.cacheService.set(
+      cacheKey,
+      {
+        sub: platformStaff!.id,
+        phone: platformStaff!.phone,
+        subjectType: SubjectTypeEnum.PlatformStaff,
+      },
+      {
+        ttl,
+      },
+    );
 
     // 创建会话记录到数据库
     await this.sessionService.createSession(
-      platformStaff.id,
+      platformStaff!.id,
       SubjectTypeEnum.PlatformStaff,
       token,
       deviceId,
