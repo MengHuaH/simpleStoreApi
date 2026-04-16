@@ -65,9 +65,7 @@ export function createApiResponseDto<T>(model: Type<T>): Type<ApiResponse<T>> {
 export const ApiSuccessResponse = <TModel extends Type<any>>({
   model,
   description = '操作成功',
-  type,
 }: {
-  type?: 'string' | 'object';
   model?: TModel;
   description?: string;
 }) => {
@@ -77,10 +75,7 @@ export const ApiSuccessResponse = <TModel extends Type<any>>({
       schema: {
         properties: {
           code: { example: 200 },
-          data:
-            type !== undefined
-              ? { example: type }
-              : { $ref: getSchemaPath(model as TModel) },
+          data: { $ref: getSchemaPath(model as TModel) },
           message: { example: '操作成功' },
           requestId: {
             example: 'f5a7b9c8-1234-5678-90ab-cdef12345678',
@@ -139,6 +134,31 @@ export const ApiCustomizeResponse = <TModel extends Type<any>>({
           data: !type
             ? { example: type }
             : { $ref: getSchemaPath(model as TModel) },
+          message: { example: '操作成功' },
+          requestId: {
+            example: 'f5a7b9c8-1234-5678-90ab-cdef12345678',
+          },
+          timestamp: { example: 1735000000000 },
+        },
+      },
+    }),
+  );
+};
+
+export const ApiCustomizeSuccessResponse = ({
+  type,
+  description = '操作成功',
+}: {
+  type?: 'string' | 'object';
+  description?: string;
+}) => {
+  return applyDecorators(
+    ApiOkResponse({
+      description,
+      schema: {
+        properties: {
+          code: { example: 200 },
+          data: { example: type, type: type },
           message: { example: '操作成功' },
           requestId: {
             example: 'f5a7b9c8-1234-5678-90ab-cdef12345678',

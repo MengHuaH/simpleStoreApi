@@ -4,7 +4,7 @@ import { Public } from '@/auth/AllowAnon.decorator';
 import { OtpService } from './otp.service';
 import { SendOtpDto } from './dto/send-otp.dto';
 import { VerifyOtpDto } from './dto/verify-otp.dto';
-import { ApiSuccessResponse } from '@/common/decorators/api-response.decorator';
+import { ApiCustomizeSuccessResponse } from '@/common/decorators/api-response.decorator';
 
 @ApiTags('otp')
 @Controller('otp')
@@ -18,7 +18,10 @@ export class OtpController {
     summary: '发送OTP验证码',
     description: '发送OTP验证码到指定手机号',
   })
-  @ApiSuccessResponse({ description: '验证码发送成功', type: 'string' })
+  @ApiCustomizeSuccessResponse({
+    description: '验证码发送成功',
+    type: 'string',
+  })
   @ApiResponse({ status: 400, description: '请求参数错误或冷却期内' })
   @ApiResponse({ status: 500, description: '服务器内部错误' })
   async sendOtp(@Body() sendOtpDto: SendOtpDto) {
