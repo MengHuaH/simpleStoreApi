@@ -9,10 +9,12 @@ export const Public = () => SetMetadata(IS_PUBLIC_KEY, true);
 export const SUBJECT_TYPE_KEY = 'subjectType';
 export const RequiresSubject = (subjectType: SubjectTypeEnum) =>
   SetMetadata(SUBJECT_TYPE_KEY, subjectType);
-
+// 成员权限装饰器
 export const RequiresMember = () => RequiresSubject(SubjectTypeEnum.Member);
+// 社区员工权限装饰器
 export const RequiresCommunityStaff = () =>
   RequiresSubject(SubjectTypeEnum.CommunityStaff);
+// 平台员工权限装饰器
 export const RequiresPlatformStaff = () =>
   RequiresSubject(SubjectTypeEnum.PlatformStaff);
 

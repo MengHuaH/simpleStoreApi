@@ -21,6 +21,24 @@ export const successResponse = <T = any>(
 };
 
 /**
+ * 自定义响应结果
+ * @param data 响应数据
+ * @param message 提示语
+ * @param code 业务状态码
+ */
+export const errorResponse = (
+  message = '操作失败',
+  code = 400,
+): ApiResponse => {
+  return {
+    code,
+    message,
+    data: undefined,
+    timestamp: Date.now(),
+  };
+};
+
+/**
  * 分页响应结果
  * @param list 列表数据
  * @param total 总数
