@@ -5,13 +5,13 @@ import {
   ApiResponse,
   ApiBearerAuth,
 } from '@nestjs/swagger';
-import { MfaService } from './shared/mfa.service';
+import { MfaService } from './mfa/mfa.service';
 import { successResponse, errorResponse } from '@/common/utils/response.util';
 import { Public, RequiresPlatformStaff } from './AllowAnon.decorator';
 import { ApiProperty } from '@nestjs/swagger';
 import { IsIn, IsString, IsBoolean } from 'class-validator';
 import { ApiSuccessResponse } from '@/common/decorators/api-response.decorator';
-import { MfaStatus } from './shared/mfa.service';
+import { MfaStatus } from './mfa/mfa.dto';
 
 /**
  * MFA管理DTO

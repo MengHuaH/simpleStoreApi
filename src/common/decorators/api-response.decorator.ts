@@ -77,9 +77,10 @@ export const ApiSuccessResponse = <TModel extends Type<any>>({
       schema: {
         properties: {
           code: { example: 200 },
-          data: !type
-            ? { example: type }
-            : { $ref: getSchemaPath(model as TModel) },
+          data:
+            type !== undefined
+              ? { example: type }
+              : { $ref: getSchemaPath(model as TModel) },
           message: { example: '操作成功' },
           requestId: {
             example: 'f5a7b9c8-1234-5678-90ab-cdef12345678',

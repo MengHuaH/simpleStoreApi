@@ -43,16 +43,11 @@ export class AuthController {
     model: Member,
     description: '会员登录成功',
   })
-  @ApiSuccessResponse({
-    model: Member,
-    description: '会员登录成功',
-  })
   @ApiCustomizeResponse({
     model: Member,
-    code: 400,
-    description: '请求参数错误',
+    code: 200,
+    description: '会员登录成功',
   })
-  @ApiResponse({ status: 404, description: '会员不存在' })
   async loginMember(
     @Body() loginDto: AuthMemberDto,
     @Req() req: Request,

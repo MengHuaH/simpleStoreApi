@@ -10,6 +10,8 @@ import {
   isMfaConfigModified,
   MfaConfig,
 } from '../mfa.config';
+import { ApiProperty } from '@nestjs/swagger';
+import { MfaStatus } from './mfa.dto';
 
 /**
  * MFA管理服务
@@ -35,17 +37,20 @@ export class MfaService {
   async enableMfa(
     mfaType: 'otp' | 'totp' = 'otp',
     forceMfa: boolean = false,
-  ): Promise<MfaConfig> {
+  ): Promise<MfaStatus> {
     const newConfig = updateMfaConfig({
       enabled: true,
       mfaType,
       forceMfa,
     });
 
-    // 这里可以将配置保存到数据库或配置文件
-    // 目前只是内存中更新
+    const config = new MfaStatus();
+    config.enabled = true;
+    config.mfaType = mfaType;
+    config.forceMfa = forceMfa;
+    config.description = 'MFA已启用';
 
-    return newConfig;
+    return config;
   }
 
   /**
@@ -160,11 +165,4 @@ export class MfaService {
 
     return `MFA功能已启用，使用${typeDesc}验证，${forceDesc}验证`;
   }
-}
-
-export class MfaStatus {
-  enabled: boolean;
-  mfaType: 'otp' | 'totp';
-  forceMfa: boolean;
-  description: string;
 }

@@ -5,7 +5,7 @@ import { AuthCommunityStaffService } from './auth-community-staff/auth-community
 import { AuthPlatformStaffService } from './auth-platform-staff/auth-platform-staff.service';
 import { AuthLogoutService } from './shared/auth-logout.service';
 import { PasskeyService } from './shared/passkey.service';
-import { MfaService } from './shared/mfa.service';
+import { MfaService } from './mfa/mfa.service';
 import { MfaController } from './mfa.controller';
 import { OtpModule } from '@/otp/otp.module';
 import { JwtModule } from '@nestjs/jwt';

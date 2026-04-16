@@ -18,7 +18,7 @@ import { AuthLogoutService } from '../shared/auth-logout.service';
 import { OtpService } from '@/otp/otp.service';
 import { SessionService } from '@/modules/sessions/shared/session.service';
 import { PasskeyService } from '../shared/passkey.service';
-import { MfaService } from '../shared/mfa.service';
+import { MfaService } from '../mfa/mfa.service';
 import * as bcrypt from 'bcrypt';
 
 @Injectable()
