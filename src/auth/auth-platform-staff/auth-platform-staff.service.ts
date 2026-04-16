@@ -36,7 +36,7 @@ export class AuthPlatformStaffService {
 
   async execute(
     phone: string,
-    password: string,
+    password?: string,
     otpCode?: string,
     passkey?: any,
     deviceId: string = 'unknown',
@@ -50,33 +50,36 @@ export class AuthPlatformStaffService {
     }
 
     let token: string;
+    let authenticated = false;
 
-    // Passkey登录
+    // 单一验证方式登录：三种方式任意一种通过即可
+
+    // 1. Passkey登录（设备自动登录）
     if (passkey) {
-      if (password) {
-        throw new BadRequestException('Passkey和密码不能同时提供');
-      }
-
       const result = await this.passkeyService.verifyPasskeyLogin(
         phone,
         passkey,
         SubjectTypeEnum.PlatformStaff,
       );
       token = result.token;
-    } else {
-      // 传统密码登录
+      authenticated = true;
+    }
+
+    // 2. 密码登录
+    else if (password) {
       const passwordItem = platformStaff.userCredential.find(
         (item) => item.credentialType === CredentialTypeEnum.Password,
       );
-      if (
-        passwordItem &&
-        !(await bcrypt.compare(password, passwordItem!.credential))
-      ) {
+      if (!passwordItem) {
         throw new BusinessException(
-          `手机号或密码错误`,
+          `用户未设置密码，请使用其他方式登录`,
           401,
           HttpStatus.UNAUTHORIZED,
         );
+      }
+
+      if (!(await bcrypt.compare(password, passwordItem!.credential))) {
+        throw new BusinessException(`密码错误`, 401, HttpStatus.UNAUTHORIZED);
       }
 
       const payload = {
@@ -85,10 +88,11 @@ export class AuthPlatformStaffService {
         subjectType: SubjectTypeEnum.PlatformStaff,
       };
       token = await this.jwtService.signAsync(payload);
+      authenticated = true;
     }
 
-    // OTP验证
-    if (otpCode) {
+    // 3. 验证码登录
+    else if (otpCode) {
       try {
         await this.otpService.verifyOtp({
           phone,
@@ -96,12 +100,25 @@ export class AuthPlatformStaffService {
           subjectType: SubjectTypeEnum.PlatformStaff,
           scenario: 'login',
         });
+
+        const payload = {
+          sub: platformStaff.id,
+          phone: platformStaff.phone,
+          subjectType: SubjectTypeEnum.PlatformStaff,
+        };
+        token = await this.jwtService.signAsync(payload);
+        authenticated = true;
       } catch (error) {
-        throw new BadRequestException(`OTP验证失败: ${error.message}`);
+        throw new BadRequestException(`验证码错误或已过期`);
       }
     }
 
-    const cacheKey = `auth:platform_staff:${token}`;
+    // 如果没有提供任何验证方式
+    if (!authenticated) {
+      throw new BadRequestException('请提供密码、验证码或Passkey进行登录');
+    }
+
+    const cacheKey = `auth:platform_staff:${token!}`;
     const ttl = this.configService.get('cache.ttl.long');
     await this.cacheService.set(
       cacheKey,
@@ -119,10 +136,10 @@ export class AuthPlatformStaffService {
     await this.sessionService.createSession(
       platformStaff!.id,
       SubjectTypeEnum.PlatformStaff,
-      token,
+      token!,
       deviceId,
     );
 
-    return successResponse({ access_token: token });
+    return successResponse({ access_token: token! });
   }
 }

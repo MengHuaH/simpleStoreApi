@@ -7,10 +7,14 @@ export class AuthCommunityStaffDto {
   @IsString({ message: '手机号必须是字符串' })
   phone: string;
 
-  @ApiProperty({ description: '密码', example: '123456' })
-  @IsNotEmpty({ message: '密码不能为空' })
+  @ApiProperty({
+    description: '密码（与验证码、Passkey三选一）',
+    example: '123456',
+    required: false,
+  })
+  @IsOptional()
   @IsString({ message: '密码必须是字符串' })
-  password: string;
+  password?: string;
 
   @ApiProperty({
     description: 'OTP验证码（可选，如果启用OTP验证则需要提供）',
@@ -22,7 +26,7 @@ export class AuthCommunityStaffDto {
   otpCode?: string;
 
   @ApiProperty({
-    description: 'Passkey认证数据（与密码二选一）',
+    description: 'Passkey认证数据（与密码、OTP验证码三选一）',
     example: {
       credentialId: 'credential-id',
       authenticatorData: 'auth-data',
