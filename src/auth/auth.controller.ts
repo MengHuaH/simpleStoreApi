@@ -1,19 +1,4 @@
-import {
-  Controller,
-  Get,
-  Post,
-  Body,
-  Patch,
-  Param,
-  Delete,
-  Query,
-  HttpCode,
-  HttpStatus,
-  ValidationPipe,
-  ParseUUIDPipe,
-  Header,
-  Req,
-} from '@nestjs/common';
+import { Controller, Post, Body, Req } from '@nestjs/common';
 import {
   ApiTags,
   ApiOperation,
@@ -29,7 +14,12 @@ import { AuthPlatformStaffService } from './auth-platform-staff/auth-platform-st
 import { AuthPlatformStaffDto } from './auth-platform-staff/auth-platform-staff.dto';
 import { AuthLogoutService } from './shared/auth-logout.service';
 import { Public } from './AllowAnon.decorator';
-import { ApiResponse as ApiResponseInterface } from '@/common/interface/response.interface';
+import { Member, CommunityStaff, PlatformStaff } from '@/entities';
+import {
+  ApiCreatedSuccessResponse,
+  ApiCustomizeResponse,
+  ApiSuccessResponse,
+} from '@/common/decorators/api-response.decorator';
 
 @ApiBearerAuth()
 @ApiTags('auth')
@@ -49,13 +39,24 @@ export class AuthController {
     summary: '会员登录',
     description: '会员登录，需提供手机号、密码',
   })
-  @ApiResponse({ status: 201, description: '登录成功' })
-  @ApiResponse({ status: 400, description: '请求参数错误' })
+  @ApiCreatedSuccessResponse({
+    model: Member,
+    description: '会员登录成功',
+  })
+  @ApiSuccessResponse({
+    model: Member,
+    description: '会员登录成功',
+  })
+  @ApiCustomizeResponse({
+    model: Member,
+    code: 400,
+    description: '请求参数错误',
+  })
   @ApiResponse({ status: 404, description: '会员不存在' })
   async loginMember(
     @Body() loginDto: AuthMemberDto,
     @Req() req: Request,
-  ): Promise<ApiResponseInterface<{ access_token: string }>> {
+  ): Promise<Member> {
     const deviceId = this.generateDeviceId(req);
     return await this.authMemberService.execute(
       loginDto.phone,
@@ -73,13 +74,34 @@ export class AuthController {
     summary: '社区员工登录',
     description: '社区员工登录，需提供手机号、密码',
   })
-  @ApiResponse({ status: 201, description: '登录成功' })
-  @ApiResponse({ status: 400, description: '请求参数错误' })
-  @ApiResponse({ status: 404, description: '社区员工不存在' })
+  @ApiCreatedSuccessResponse({
+    model: CommunityStaff,
+    description: '社区员工登录成功',
+  })
+  @ApiCustomizeResponse({
+    model: CommunityStaff,
+    code: 200,
+    description: '社区员工登录成功',
+  })
+  @ApiCustomizeResponse({
+    model: CommunityStaff,
+    code: 202,
+    description: '需要进行MFA验证',
+  })
+  @ApiCustomizeResponse({
+    model: CommunityStaff,
+    code: 400,
+    description: '请求参数错误',
+  })
+  @ApiCustomizeResponse({
+    model: CommunityStaff,
+    code: 404,
+    description: '社区员工不存在',
+  })
   async loginCommunityStaff(
     @Body() loginDto: AuthCommunityStaffDto,
     @Req() req: Request,
-  ): Promise<ApiResponseInterface<{ access_token: string }>> {
+  ): Promise<CommunityStaff> {
     const deviceId = this.generateDeviceId(req);
     return await this.authCommunityStaffService.execute(
       loginDto.phone,
@@ -97,13 +119,34 @@ export class AuthController {
     summary: '平台员工登录',
     description: '平台员工登录，需提供手机号、密码',
   })
-  @ApiResponse({ status: 201, description: '登录成功' })
-  @ApiResponse({ status: 400, description: '请求参数错误' })
-  @ApiResponse({ status: 404, description: '平台员工不存在' })
+  @ApiCreatedSuccessResponse({
+    model: PlatformStaff,
+    description: '平台员工登录成功',
+  })
+  @ApiCustomizeResponse({
+    model: PlatformStaff,
+    code: 200,
+    description: '平台员工登录成功',
+  })
+  @ApiCustomizeResponse({
+    model: PlatformStaff,
+    code: 202,
+    description: '需要进行MFA验证',
+  })
+  @ApiCustomizeResponse({
+    model: PlatformStaff,
+    code: 400,
+    description: '请求参数错误',
+  })
+  @ApiCustomizeResponse({
+    model: PlatformStaff,
+    code: 404,
+    description: '平台员工不存在',
+  })
   async loginPlatformStaff(
     @Body() loginDto: AuthPlatformStaffDto,
     @Req() req: Request,
-  ): Promise<ApiResponseInterface<{ access_token: string }>> {
+  ): Promise<PlatformStaff> {
     const deviceId = this.generateDeviceId(req);
     return await this.authPlatformStaffService.execute(
       loginDto.phone,

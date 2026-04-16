@@ -101,8 +101,10 @@ export class PlatformStaffsController {
   @RequiresPlatformStaff()
   @Get(':id')
   @ApiOperation({ summary: '获取平台员工详情' })
-  @ApiResponse({ status: 200, description: '获取平台员工详情成功' })
-  @ApiSuccessResponse(PlatformStaff, '获取平台员工详情成功')
+  @ApiSuccessResponse({
+    model: PlatformStaff,
+    description: '获取平台员工详情成功',
+  })
   async findOne(
     @Param('id', ParseUUIDPipe) id: string,
   ): Promise<PlatformStaff> {

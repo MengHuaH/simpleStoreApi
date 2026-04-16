@@ -99,8 +99,10 @@ export class CommunityStaffsController {
 
   @Get(':id')
   @ApiOperation({ summary: '获取社区员工详情' })
-  @ApiResponse({ status: 200, description: '获取社区员工详情成功' })
-  @ApiSuccessResponse(CommunityStaff, '获取社区员工详情成功')
+  @ApiSuccessResponse({
+    model: CommunityStaff,
+    description: '获取社区员工详情成功',
+  })
   async findOne(
     @Param('id', ParseUUIDPipe) id: string,
   ): Promise<CommunityStaff> {

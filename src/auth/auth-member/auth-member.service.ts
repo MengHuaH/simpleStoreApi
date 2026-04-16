@@ -20,6 +20,7 @@ import { SessionService } from '@/modules/sessions/shared/session.service';
 import { PasskeyService } from '../shared/passkey.service';
 import { MfaService } from '../shared/mfa.service';
 import * as bcrypt from 'bcrypt';
+import { UserSession } from '@/entities';
 
 @Injectable()
 export class AuthMemberService {
@@ -41,7 +42,7 @@ export class AuthMemberService {
     otpCode?: string,
     passkey?: any,
     deviceId: string = 'unknown',
-  ): Promise<ApiResponse<any>> {
+  ): Promise<Member> {
     let member = await this.repository.findOne({
       where: { phone },
       relations: ['userCredential'],
@@ -63,19 +64,19 @@ export class AuthMemberService {
     if (requiresMfa) {
       // 必须提供主凭证（密码或Passkey）
       if (!password && !passkey) {
-        throw new BadRequestException('MFA开启后必须提供密码或Passkey进行登录');
+        throw new BusinessException(
+          'MFA开启后必须提供密码或Passkey进行登录',
+          202,
+          HttpStatus.ACCEPTED,
+        );
       }
 
       // 必须提供验证码作为第二因素
       if (!otpCode) {
-        return successResponse(
-          {
-            requiresMfa: true,
-            message: '需要进行MFA验证',
-            mfaType: (await this.mfaService.getMfaConfig()).mfaType,
-          },
-          '需要进行MFA验证',
+        throw new BusinessException(
+          'MFA开启后必须提供验证码',
           202,
+          HttpStatus.ACCEPTED,
         );
       }
 
@@ -88,7 +89,11 @@ export class AuthMemberService {
           scenario: 'login',
         });
       } catch (error) {
-        throw new BadRequestException('MFA验证码错误或已过期');
+        throw new BusinessException(
+          'MFA验证码错误或已过期',
+          202,
+          HttpStatus.ACCEPTED,
+        );
       }
     }
 
@@ -150,16 +155,28 @@ export class AuthMemberService {
         token = await this.jwtService.signAsync(payload);
         authenticated = true;
       } catch (error) {
-        throw new BadRequestException(`验证码错误或已过期`);
+        throw new BusinessException(
+          `验证码错误或已过期`,
+          401,
+          HttpStatus.UNAUTHORIZED,
+        );
       }
     }
 
     // 如果没有提供任何验证方式
     if (!authenticated) {
       if (requiresMfa) {
-        throw new BadRequestException('MFA开启后必须提供密码或Passkey进行登录');
+        throw new BusinessException(
+          'MFA开启后必须提供密码或Passkey进行登录',
+          202,
+          HttpStatus.ACCEPTED,
+        );
       } else {
-        throw new BadRequestException('请提供密码、验证码或Passkey进行登录');
+        throw new BusinessException(
+          '请提供密码、验证码或Passkey进行登录',
+          202,
+          HttpStatus.ACCEPTED,
+        );
       }
     }
 
@@ -178,16 +195,19 @@ export class AuthMemberService {
     );
 
     // 创建会话记录到数据库
-    await this.sessionService.createSession(
+    const session = await this.sessionService.createSession(
       member!.id,
       SubjectTypeEnum.Member,
       token!,
       deviceId,
     );
 
-    return successResponse({
-      access_token: token!,
-      requiresMfa: false, // 登录成功，不需要MFA
-    });
+    const newMember = {
+      ...member,
+    };
+
+    newMember.userSession = [session];
+
+    return newMember;
   }
 }

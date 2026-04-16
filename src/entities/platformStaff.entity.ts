@@ -10,7 +10,11 @@ export class PlatformStaff extends BaseEntity {
   @Column({ nullable: true })
   phone: string;
 
-  @ApiProperty({ example: [], description: '平台员工凭证' })
+  @ApiProperty({
+    example: [],
+    description: '平台员工凭证',
+    type: Array<UserCredential>,
+  })
   @OneToMany(
     () => UserCredential,
     (userCredential) => userCredential.platformStaff,
@@ -21,7 +25,11 @@ export class PlatformStaff extends BaseEntity {
   )
   userCredential: UserCredential[];
 
-  @ApiProperty({ example: [], description: '平台员工会话' })
+  @ApiProperty({
+    example: [],
+    description: '平台员工会话',
+    type: Array<UserSession>,
+  })
   @OneToMany(() => UserSession, (userSession) => userSession.platformStaff, {
     nullable: true,
   })

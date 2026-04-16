@@ -135,6 +135,7 @@ export class MfaService {
   /**
    * 获取MFA状态
    */
+
   async getMfaStatus() {
     const config = await this.getMfaConfig();
 
@@ -159,4 +160,11 @@ export class MfaService {
 
     return `MFA功能已启用，使用${typeDesc}验证，${forceDesc}验证`;
   }
+}
+
+export class MfaStatus {
+  enabled: boolean;
+  mfaType: 'otp' | 'totp';
+  forceMfa: boolean;
+  description: string;
 }

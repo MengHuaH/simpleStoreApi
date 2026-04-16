@@ -10,7 +10,11 @@ export class CommunityStaff extends BaseEntity {
   @Column({ nullable: true })
   phone: string;
 
-  @ApiProperty({ example: [], description: '用户凭证' })
+  @ApiProperty({
+    example: [],
+    description: '用户凭证',
+    type: Array<UserCredential>,
+  })
   @OneToMany(
     () => UserCredential,
     (userCredential) => userCredential.communityStaff,
@@ -21,7 +25,11 @@ export class CommunityStaff extends BaseEntity {
   )
   userCredential: UserCredential[];
 
-  @ApiProperty({ example: [], description: '社区员工会话' })
+  @ApiProperty({
+    example: [],
+    description: '社区员工会话',
+    type: Array<UserSession>,
+  })
   @OneToMany(() => UserSession, (userSession) => userSession.communityStaff, {
     nullable: true,
   })

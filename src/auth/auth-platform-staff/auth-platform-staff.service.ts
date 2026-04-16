@@ -41,7 +41,7 @@ export class AuthPlatformStaffService {
     otpCode?: string,
     passkey?: any,
     deviceId: string = 'unknown',
-  ): Promise<ApiResponse<any>> {
+  ): Promise<PlatformStaff> {
     let platformStaff = await this.repository.findOne({
       where: { phone },
       relations: ['userCredential'],
@@ -68,15 +68,7 @@ export class AuthPlatformStaffService {
 
       // 必须提供验证码作为第二因素
       if (!otpCode) {
-        return successResponse(
-          {
-            requiresMfa: true,
-            message: '需要进行MFA验证',
-            mfaType: (await this.mfaService.getMfaConfig()).mfaType,
-          },
-          '需要进行MFA验证',
-          202,
-        );
+        throw new BadRequestException('MFA开启后必须提供验证码进行登录');
       }
 
       // ✅ 验证验证码的正确性（MFA开启时必须验证）
@@ -178,16 +170,19 @@ export class AuthPlatformStaffService {
     );
 
     // 创建会话记录到数据库
-    await this.sessionService.createSession(
+    const session = await this.sessionService.createSession(
       platformStaff!.id,
       SubjectTypeEnum.PlatformStaff,
       token!,
       deviceId,
     );
 
-    return successResponse({
-      access_token: token!,
-      requiresMfa: false, // 登录成功，不需要MFA
-    });
+    const newPlatformStaff = {
+      ...platformStaff,
+    };
+
+    newPlatformStaff.userSession = [session];
+
+    return newPlatformStaff;
   }
 }

@@ -32,9 +32,9 @@ export interface MfaConfig {
  * 默认MFA配置
  */
 export const defaultMfaConfig: MfaConfig = {
-  enabled: false, // 默认关闭MFA
+  enabled: true, // 默认关闭MFA
   mfaType: 'otp', // 默认使用短信验证码
-  forceMfa: false, // 默认不强制要求MFA
+  forceMfa: true, // 默认不强制要求MFA
   excludePaths: [
     '/auth/mfa/enable',
     '/auth/mfa/disable',

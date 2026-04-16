@@ -10,6 +10,8 @@ import { successResponse, errorResponse } from '@/common/utils/response.util';
 import { Public, RequiresPlatformStaff } from './AllowAnon.decorator';
 import { ApiProperty } from '@nestjs/swagger';
 import { IsIn, IsString, IsBoolean } from 'class-validator';
+import { ApiSuccessResponse } from '@/common/decorators/api-response.decorator';
+import { MfaStatus } from './shared/mfa.service';
 
 /**
  * MFA管理DTO
@@ -50,10 +52,10 @@ export class MfaController {
     summary: '获取MFA状态',
     description: '获取当前MFA功能的启用状态和配置',
   })
-  @ApiResponse({ status: 200, description: '获取成功' })
+  @ApiSuccessResponse({ description: '获取成功', model: MfaStatus })
   async getMfaStatus() {
     const status = await this.mfaService.getMfaStatus();
-    return successResponse(status);
+    return status;
   }
 
   /**

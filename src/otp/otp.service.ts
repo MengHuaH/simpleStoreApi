@@ -58,9 +58,7 @@ export class OtpService {
   /**
    * 发送OTP验证码
    */
-  async sendOtp(
-    dto: SendOtpDto,
-  ): Promise<{ success: boolean; code: string; message: string }> {
+  async sendOtp(dto: SendOtpDto): Promise<string> {
     const { phone, subjectType, scenario = 'login' } = dto;
     const otpKey = this.buildOtpKey(phone, subjectType, scenario);
 
@@ -101,11 +99,7 @@ export class OtpService {
     // 发送短信（模拟）
     await this.smsService.sendOtpSms(phone, code);
 
-    return {
-      success: true,
-      code: otpSession.code,
-      message: '验证码发送成功',
-    };
+    return code;
   }
 
   /**

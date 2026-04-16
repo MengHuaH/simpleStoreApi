@@ -10,14 +10,22 @@ export class Member extends BaseEntity {
   @Column({ nullable: true })
   phone: string;
 
-  @ApiProperty({ example: [], description: '会员凭证' })
+  @ApiProperty({
+    example: [],
+    description: '会员凭证',
+    type: Array<UserCredential>,
+  })
   @OneToMany(() => UserCredential, (userCredential) => userCredential.member, {
     nullable: true,
     cascade: true,
   })
   userCredential: UserCredential[];
 
-  @ApiProperty({ example: [], description: '会员会话' })
+  @ApiProperty({
+    example: [],
+    description: '会员会话',
+    type: Array<UserSession>,
+  })
   @OneToMany(() => UserSession, (userSession) => userSession.member, {
     nullable: true,
     cascade: true,
