@@ -57,6 +57,6 @@ export class UserSession extends BaseEntity {
   deviceId: string;
 
   @ApiProperty({ example: true, description: '是否激活' })
-  @Column({ nullable: true })
+  @Column({ default: true })
   isActive: boolean;
 }

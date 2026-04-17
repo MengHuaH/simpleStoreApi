@@ -121,8 +121,32 @@ export class SessionRepository extends Repository<UserSession> {
    * 使会话失效
    */
   async invalidateSession(token: string): Promise<boolean> {
-    const result = await this.update({ token }, { isActive: false });
-    return (result.affected || 0) > 0;
+    try {
+      // 先检查会话是否存在且是活跃状态
+      const session = await this.findOne({
+        where: { token, isActive: true },
+      });
+
+      if (!session) {
+        console.warn(`会话不存在或已失效: ${token}`);
+        return false;
+      }
+
+      // 更新会话状态
+      const result = await this.update({ token }, { isActive: false });
+      const success = (result.affected || 0) > 0;
+
+      if (success) {
+        console.log(`会话失效成功: ${token}`);
+      } else {
+        console.warn(`会话失效失败: ${token}`);
+      }
+
+      return success;
+    } catch (error) {
+      console.error(`使会话失效时发生错误: ${token}`, error);
+      return false;
+    }
   }
 
   /**

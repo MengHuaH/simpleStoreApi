@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { CacheService } from '@/cache/cache.service';
+import { SessionService } from '@/modules/sessions/shared/session.service';
 import { SubjectTypeEnum } from '../../entities/enums';
 
 @Injectable()
@@ -8,6 +9,7 @@ export class AuthLogoutService {
   constructor(
     private readonly cacheService: CacheService,
     private readonly jwtService: JwtService,
+    private readonly sessionService: SessionService,
   ) {}
 
   /**
@@ -16,8 +18,12 @@ export class AuthLogoutService {
    * @param SubjectTypeEnum 主体类型
    */
   async logout(token: string, SubjectTypeEnum: SubjectTypeEnum): Promise<void> {
+    // 1. 删除缓存中的会话
     const cacheKey = this.buildCacheKey(token, SubjectTypeEnum);
     await this.cacheService.delete(cacheKey);
+
+    // 2. 更新数据库中的会话状态为失效
+    await this.sessionService.invalidateSession(token);
   }
 
   /**
