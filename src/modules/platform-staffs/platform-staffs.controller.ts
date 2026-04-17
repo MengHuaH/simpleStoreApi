@@ -45,7 +45,6 @@ import { PlatformStaff } from '../../entities/platformStaff.entity';
 import {
   ApiCustomizeResponse,
   ApiCreatedSuccessResponse,
-  ApiSuccessResponse,
 } from '@/common/decorators/api-response.decorator';
 
 @ApiBearerAuth()
@@ -68,12 +67,12 @@ export class PlatformStaffsController {
   @Post()
   @ApiCreatedSuccessResponse({
     model: PlatformStaff,
-    description: '平台员工密钥绑定成功',
+    description: '平台员工创建成功',
   })
   @ApiCustomizeResponse({
     model: PlatformStaff,
     code: 200,
-    description: '平台员工密钥绑定成功',
+    description: '平台员工创建成功',
   })
   @ApiResponse({ status: 400, description: '请求参数错误' })
   @ApiResponse({ status: 409, description: '手机号已存在' })
@@ -109,10 +108,12 @@ export class PlatformStaffsController {
   @RequiresPlatformStaff()
   @Get(':id')
   @ApiOperation({ summary: '获取平台员工详情' })
-  @ApiSuccessResponse({
-    model: PlatformStaff,
-    description: '获取平台员工详情成功',
+  @ApiResponse({
+    status: 200,
+    description: '平台员工获取详情成功',
+    type: PlatformStaff,
   })
+  @ApiResponse({ status: 404, description: '平台员工不存在' })
   async findOne(
     @Param('id', ParseUUIDPipe) id: string,
   ): Promise<PlatformStaff> {
@@ -122,13 +123,21 @@ export class PlatformStaffsController {
   @RequiresPlatformStaff()
   @Patch(':id')
   @ApiOperation({ summary: '更新平台员工信息' })
-  @ApiResponse({ status: 200, description: '平台员工信息更新成功' })
+  @ApiResponse({
+    status: 200,
+    description: '平台员工更新成功',
+    type: PlatformStaff,
+  })
+  @ApiResponse({ status: 404, description: '平台员工不存在' })
+  @ApiResponse({ status: 409, description: '手机号已存在' })
   async update(
     @Param('id', ParseUUIDPipe) id: string,
     @Body(new ValidationPipe()) updatePlatformStaffDto: UpdatePlatformStaffDto,
   ) {
-    await this.updatePlatformStaffService.execute(id, updatePlatformStaffDto);
-    return { success: true, message: '平台员工信息更新成功' };
+    return await this.updatePlatformStaffService.execute(
+      id,
+      updatePlatformStaffDto,
+    );
   }
 
   @RequiresPlatformStaff()
@@ -143,7 +152,8 @@ export class PlatformStaffsController {
     code: 200,
     description: '平台员工密钥绑定成功',
   })
-  @ApiResponse({ status: 200, description: '平台员工密钥绑定成功' })
+  @ApiResponse({ status: 404, description: '平台员工不存在' })
+  @ApiResponse({ status: 409, description: '密钥已被绑定' })
   async bindPasskey(
     @Param('id', ParseUUIDPipe) id: string,
     @Body(new ValidationPipe())
@@ -161,6 +171,7 @@ export class PlatformStaffsController {
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: '删除平台员工' })
   @ApiResponse({ status: 200, description: '平台员工删除成功' })
+  @ApiResponse({ status: 404, description: '平台员工不存在' })
   async remove(@Param('id', ParseUUIDPipe) id: string) {
     await this.deletePlatformStaffService.execute(id);
     return { success: true, message: '平台员工删除成功' };

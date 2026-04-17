@@ -7,15 +7,6 @@ import { PlatformStaff } from './platformStaff.entity';
 import { CommunityStaff } from './communityStaff.entity';
 
 @Entity('user_credentials')
-@Unique('UQ_user_credential_type', ['member', 'credentialType'])
-@Unique('UQ_platform_staff_credential_type', [
-  'platformStaff',
-  'credentialType',
-])
-@Unique('UQ_community_staff_credential_type', [
-  'communityStaff',
-  'credentialType',
-])
 export class UserCredential extends BaseEntity {
   @ApiProperty({ example: '', description: '会员' })
   @ManyToOne(() => Member, (member) => member.userCredential, {
@@ -47,7 +38,7 @@ export class UserCredential extends BaseEntity {
     example: SubjectTypeEnum.Member,
     description: '主体类型',
   })
-  @Column({ default: SubjectTypeEnum.Member })
+  @Column({ nullable: true, default: SubjectTypeEnum.Member })
   subjectType: SubjectTypeEnum;
 
   @ApiProperty({

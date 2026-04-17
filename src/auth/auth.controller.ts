@@ -78,21 +78,6 @@ export class AuthController {
     code: 200,
     description: '社区员工登录成功',
   })
-  @ApiCustomizeResponse({
-    model: CommunityStaff,
-    code: 202,
-    description: '需要进行MFA验证',
-  })
-  @ApiCustomizeResponse({
-    model: CommunityStaff,
-    code: 400,
-    description: '请求参数错误',
-  })
-  @ApiCustomizeResponse({
-    model: CommunityStaff,
-    code: 404,
-    description: '社区员工不存在',
-  })
   async loginCommunityStaff(
     @Body() loginDto: AuthCommunityStaffDto,
     @Req() req: Request,
@@ -122,21 +107,6 @@ export class AuthController {
     model: PlatformStaff,
     code: 200,
     description: '平台员工登录成功',
-  })
-  @ApiCustomizeResponse({
-    model: PlatformStaff,
-    code: 202,
-    description: '需要进行MFA验证',
-  })
-  @ApiCustomizeResponse({
-    model: PlatformStaff,
-    code: 400,
-    description: '请求参数错误',
-  })
-  @ApiCustomizeResponse({
-    model: PlatformStaff,
-    code: 404,
-    description: '平台员工不存在',
   })
   async loginPlatformStaff(
     @Body() loginDto: AuthPlatformStaffDto,

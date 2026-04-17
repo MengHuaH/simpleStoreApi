@@ -45,7 +45,6 @@ import { CommunityStaff } from '../../entities/communityStaff.entity';
 import {
   ApiCreatedSuccessResponse,
   ApiCustomizeResponse,
-  ApiSuccessResponse,
 } from '@/common/decorators/api-response.decorator';
 
 @ApiBearerAuth()
@@ -107,8 +106,13 @@ export class CommunityStaffsController {
 
   @Get(':id')
   @ApiOperation({ summary: '获取社区员工详情' })
-  @ApiSuccessResponse({
-    model: CommunityStaff,
+  @ApiResponse({
+    status: 200,
+    description: '获取社区员工详情成功',
+    type: CommunityStaff,
+  })
+  @ApiResponse({
+    status: 404,
     description: '获取社区员工详情成功',
   })
   async findOne(
@@ -119,14 +123,22 @@ export class CommunityStaffsController {
 
   @Patch(':id')
   @ApiOperation({ summary: '更新社区员工信息' })
-  @ApiResponse({ status: 200, description: '社区员工信息更新成功' })
+  @ApiResponse({
+    status: 200,
+    description: '社区员工更新成功',
+    type: CommunityStaff,
+  })
+  @ApiResponse({ status: 404, description: '社区员工不存在' })
+  @ApiResponse({ status: 409, description: '手机号已存在' })
   async update(
     @Param('id', ParseUUIDPipe) id: string,
     @Body(new ValidationPipe())
     updateCommunityStaffDto: UpdateCommunityStaffDto,
-  ) {
-    await this.updateCommunityStaffService.execute(id, updateCommunityStaffDto);
-    return { success: true, message: '社区员工信息更新成功' };
+  ): Promise<CommunityStaff> {
+    return await this.updateCommunityStaffService.execute(
+      id,
+      updateCommunityStaffDto,
+    );
   }
 
   @Post(':id/bindpasskey')
@@ -139,6 +151,14 @@ export class CommunityStaffsController {
     model: CommunityStaff,
     code: 200,
     description: '社区员工密钥绑定成功',
+  })
+  @ApiResponse({
+    status: 404,
+    description: '社区员工不存在',
+  })
+  @ApiResponse({
+    status: 409,
+    description: '社区员工密钥绑定失败',
   })
   async bindPasskey(
     @Param('id', ParseUUIDPipe) id: string,
@@ -155,7 +175,8 @@ export class CommunityStaffsController {
   @Delete(':id')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: '删除社区员工' })
-  @ApiResponse({ status: 200, description: '社区员工删除成功' })
+  @ApiResponse({ status: 204, description: '社区员工删除成功' })
+  @ApiResponse({ status: 404, description: '社区员工不存在' })
   async remove(@Param('id', ParseUUIDPipe) id: string) {
     await this.deleteCommunityStaffService.execute(id);
     return { success: true, message: '社区员工删除成功' };

@@ -1,12 +1,20 @@
-import { Injectable, NotFoundException, ConflictException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  ConflictException,
+} from '@nestjs/common';
 import { PlatformStaffRepository } from '../../shared/platform-staff.repository';
 import { UpdatePlatformStaffDto } from './update-platform-staff.dto';
+import { PlatformStaff } from '../../../../entities/platformStaff.entity';
 
 @Injectable()
 export class UpdatePlatformStaffService {
   constructor(private readonly repository: PlatformStaffRepository) {}
 
-  async execute(id: string, dto: UpdatePlatformStaffDto): Promise<void> {
+  async execute(
+    id: string,
+    dto: UpdatePlatformStaffDto,
+  ): Promise<PlatformStaff> {
     // 检查平台员工是否存在
     const existingStaff = await this.repository.findById(id);
     if (!existingStaff) {
@@ -27,6 +35,6 @@ export class UpdatePlatformStaffService {
       existingStaff.isActive = dto.isActive;
     }
 
-    await this.repository.save(existingStaff);
+    return await this.repository.save(existingStaff);
   }
 }

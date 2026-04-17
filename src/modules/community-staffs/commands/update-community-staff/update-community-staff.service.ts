@@ -5,12 +5,16 @@ import {
 } from '@nestjs/common';
 import { CommunityStaffRepository } from '../../shared/community-staff.repository';
 import { UpdateCommunityStaffDto } from './update-community-staff.dto';
+import { CommunityStaff } from '../../../../entities';
 
 @Injectable()
 export class UpdateCommunityStaffService {
   constructor(private readonly repository: CommunityStaffRepository) {}
 
-  async execute(id: string, dto: UpdateCommunityStaffDto): Promise<void> {
+  async execute(
+    id: string,
+    dto: UpdateCommunityStaffDto,
+  ): Promise<CommunityStaff> {
     // 检查社区员工是否存在
     const existingStaff = await this.repository.findById(id);
     if (!existingStaff) {
@@ -31,6 +35,6 @@ export class UpdateCommunityStaffService {
       existingStaff.isActive = dto.isActive;
     }
 
-    await this.repository.save(existingStaff);
+    return await this.repository.save(existingStaff);
   }
 }

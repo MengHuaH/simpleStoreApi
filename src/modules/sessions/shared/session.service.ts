@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { SubjectTypeEnum } from '@/entities/enums';
 import { SessionRepository } from './session.repository';
 import { CacheService } from '@/cache/cache.service';
+import { UserSession } from '@/entities/userSession.entity';
 
 @Injectable()
 export class SessionService {
@@ -42,6 +43,22 @@ export class SessionService {
       userId,
       subjectType,
     );
+  }
+
+  /**
+   * 获取所有会话
+   */
+  async findAll(
+    select: (keyof UserSession)[],
+    skip: number,
+    take: number,
+  ): Promise<[UserSession[], number]> {
+    return this.sessionRepository.findAndCount({
+      select,
+      skip,
+      take,
+      order: { createdAt: 'DESC' },
+    });
   }
 
   /**
