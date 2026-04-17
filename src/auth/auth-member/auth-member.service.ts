@@ -53,6 +53,9 @@ export class AuthMemberService {
     if (!member.isActive) {
       throw new BusinessException('会员已被禁用', 202, HttpStatus.ACCEPTED);
     }
+    if (member.userCredential[0].subjectType !== SubjectTypeEnum.Member) {
+      throw new BusinessException('该手机号不是会员', 202, HttpStatus.ACCEPTED);
+    }
 
     let token: string;
     let authenticated = false;

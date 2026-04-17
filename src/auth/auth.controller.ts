@@ -13,7 +13,11 @@ import { AuthCommunityStaffDto } from './auth-community-staff/auth-community-sta
 import { AuthPlatformStaffService } from './auth-platform-staff/auth-platform-staff.service';
 import { AuthPlatformStaffDto } from './auth-platform-staff/auth-platform-staff.dto';
 import { AuthLogoutService } from './shared/auth-logout.service';
-import { Public } from './AllowAnon.decorator';
+import {
+  Public,
+  RequiresPlatformStaff,
+  RequiresCommunityStaff,
+} from './AllowAnon.decorator';
 import { Member, CommunityStaff, PlatformStaff } from '@/entities';
 import {
   ApiCreatedSuccessResponse,

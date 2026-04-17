@@ -25,7 +25,7 @@ export class CreatePlatformStaffService {
 
     const platformStaff = new PlatformStaff();
     platformStaff.phone = dto.phone;
-    platformStaff.userCredential.push(userCredential);
+    platformStaff.userCredential = [userCredential];
 
     return await this.repository.save(platformStaff);
   }

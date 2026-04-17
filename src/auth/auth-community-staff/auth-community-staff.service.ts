@@ -52,32 +52,19 @@ export class AuthCommunityStaffService {
     if (!communityStaff.isActive) {
       throw new BusinessException('社区员工已被禁用', 202, HttpStatus.ACCEPTED);
     }
+    if (
+      communityStaff.userCredential[0].subjectType !==
+      SubjectTypeEnum.CommunityStaff
+    ) {
+      throw new BusinessException(
+        '该手机号不是社区员工',
+        202,
+        HttpStatus.ACCEPTED,
+      );
+    }
 
     let token: string;
     let authenticated = false;
-
-    async function verifyOtpCode() {
-      if (communityStaff) {
-        try {
-          await this.otpService.verifyOtp({
-            phone,
-            code: otpCode,
-            subjectType: SubjectTypeEnum.CommunityStaff,
-            scenario: 'login',
-          });
-
-          const payload = {
-            sub: communityStaff.id,
-            phone: communityStaff.phone,
-            subjectType: SubjectTypeEnum.CommunityStaff,
-          };
-          token = await this.jwtService.signAsync(payload);
-          authenticated = true;
-        } catch (error) {
-          throw new BadRequestException(`验证码错误或已过期`);
-        }
-      }
-    }
 
     // 检查是否需要MFA验证（先检查，影响后续逻辑）
     const requiresMfa = await this.mfaService.requiresMfa(
@@ -89,12 +76,20 @@ export class AuthCommunityStaffService {
     if (requiresMfa) {
       // 必须提供主凭证（密码或Passkey）
       if (!password && !passkey) {
-        throw new BadRequestException('MFA开启后必须提供密码或Passkey进行登录');
+        throw new BusinessException(
+          'MFA开启后必须提供密码或Passkey进行登录',
+          202,
+          HttpStatus.ACCEPTED,
+        );
       }
 
       // 必须提供验证码作为第二因素
       if (!otpCode) {
-        throw new BadRequestException('MFA开启后必须提供验证码进行登录');
+        throw new BusinessException(
+          'MFA开启后必须提供验证码',
+          202,
+          HttpStatus.ACCEPTED,
+        );
       }
 
       // ✅ 验证验证码的正确性（MFA开启时必须验证）
@@ -106,7 +101,11 @@ export class AuthCommunityStaffService {
           scenario: 'login',
         });
       } catch (error) {
-        throw new BadRequestException('MFA验证码错误或已过期');
+        throw new BusinessException(
+          'MFA验证码错误或已过期',
+          202,
+          HttpStatus.ACCEPTED,
+        );
       }
     }
 
@@ -152,15 +151,44 @@ export class AuthCommunityStaffService {
 
     // 3. 验证码登录（仅当MFA关闭时可用）
     else if (otpCode && !requiresMfa) {
-      await verifyOtpCode();
+      try {
+        await this.otpService.verifyOtp({
+          phone,
+          code: otpCode,
+          subjectType: SubjectTypeEnum.CommunityStaff,
+          scenario: 'login',
+        });
+
+        const payload = {
+          sub: communityStaff.id,
+          phone: communityStaff.phone,
+          subjectType: SubjectTypeEnum.CommunityStaff,
+        };
+        token = await this.jwtService.signAsync(payload);
+        authenticated = true;
+      } catch (error) {
+        throw new BusinessException(
+          `验证码错误或已过期`,
+          401,
+          HttpStatus.UNAUTHORIZED,
+        );
+      }
     }
 
     // 如果没有提供任何验证方式
     if (!authenticated) {
       if (requiresMfa) {
-        throw new BadRequestException('MFA开启后必须提供密码或Passkey进行登录');
+        throw new BusinessException(
+          'MFA开启后必须提供密码或Passkey进行登录',
+          202,
+          HttpStatus.ACCEPTED,
+        );
       } else {
-        throw new BadRequestException('请提供密码、验证码或Passkey进行登录');
+        throw new BusinessException(
+          '请提供密码、验证码或Passkey进行登录',
+          202,
+          HttpStatus.ACCEPTED,
+        );
       }
     }
 

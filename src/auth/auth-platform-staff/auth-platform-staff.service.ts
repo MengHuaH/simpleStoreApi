@@ -52,6 +52,16 @@ export class AuthPlatformStaffService {
     if (!platformStaff.isActive) {
       throw new BusinessException('平台员工已被禁用', 202, HttpStatus.ACCEPTED);
     }
+    if (
+      platformStaff.userCredential[0].subjectType !==
+      SubjectTypeEnum.PlatformStaff
+    ) {
+      throw new BusinessException(
+        '该手机号不是平台员工',
+        202,
+        HttpStatus.ACCEPTED,
+      );
+    }
 
     let token: string;
     let authenticated = false;

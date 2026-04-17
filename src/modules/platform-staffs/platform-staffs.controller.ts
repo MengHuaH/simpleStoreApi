@@ -46,6 +46,7 @@ import { PlatformStaff } from '../../entities/platformStaff.entity';
 import {
   ApiCustomizeResponse,
   ApiCreatedSuccessResponse,
+  ApiCustomizeSuccessResponse,
 } from '@/common/decorators/api-response.decorator';
 
 @ApiBearerAuth()
@@ -97,11 +98,14 @@ export class PlatformStaffsController {
   }
 
   @RequiresPlatformStaff()
-  @Get('search')
+  @Post('search')
   @ApiOperation({ summary: '搜索平台员工' })
-  @ApiResponse({ status: 200, description: '搜索平台员工成功' })
+  @ApiCustomizeSuccessResponse({
+    description: '获取成功',
+    type: 'object',
+  })
   async search(
-    @Query(new ValidationPipe())
+    @Body(new ValidationPipe())
     searchPlatformStaffsDto: SearchPlatformStaffsDto,
   ) {
     return this.searchPlatformStaffsService.execute(searchPlatformStaffsDto);

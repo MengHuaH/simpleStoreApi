@@ -23,7 +23,7 @@ export class CreateCommunityStaffService {
     // 创建社区员工
 
     const userCredential = new UserCredential();
-    userCredential.subjectType = SubjectTypeEnum.Member;
+    userCredential.subjectType = SubjectTypeEnum.CommunityStaff;
     userCredential.credentialType = CredentialTypeEnum.Password;
     userCredential.credential = await bcrypt.hash(dto.password, 10);
 
