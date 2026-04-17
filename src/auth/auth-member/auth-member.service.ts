@@ -40,7 +40,7 @@ export class AuthMemberService {
     phone: string,
     password?: string,
     otpCode?: string,
-    passkey?: any,
+    passkey?: string,
     deviceId: string = 'unknown',
   ): Promise<Member> {
     let member = await this.repository.findOne({

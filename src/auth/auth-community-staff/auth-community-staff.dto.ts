@@ -27,12 +27,7 @@ export class AuthCommunityStaffDto {
 
   @ApiProperty({
     description: 'Passkey认证数据（与密码、OTP验证码三选一）',
-    example: {
-      credentialId: 'credential-id',
-      authenticatorData: 'auth-data',
-      clientDataJSON: 'client-data',
-      signature: 'signature',
-    },
+    example: '',
     required: false,
   })
   @IsOptional()

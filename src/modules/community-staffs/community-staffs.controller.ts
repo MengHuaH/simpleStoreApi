@@ -156,7 +156,7 @@ export class CommunityStaffsController {
     );
   }
 
-  @RequiresPlatformStaff()
+  @RequiresStaff()
   @Post(':id/bindpasskey')
   @ApiOperation({ summary: '绑定社区员工密钥' })
   @ApiCreatedSuccessResponse({
