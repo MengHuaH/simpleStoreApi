@@ -26,7 +26,7 @@ export const typeOrmConfig: TypeOrmModuleOptions = {
   synchronize: process.env.NODE_ENV !== 'production',
   logging: process.env.NODE_ENV !== 'production',
   charset: 'utf8mb4',
-  timezone: '+08:00',
+  timezone: 'Z',
   extra: {
     charset: 'utf8mb4_unicode_ci',
   },
