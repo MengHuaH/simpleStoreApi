@@ -64,7 +64,7 @@ export class MfaController {
   @RequiresPlatformStaff()
   @Post('enable')
   @ApiOperation({ summary: '启用MFA', description: '启用多因素认证功能' })
-  @ApiResponse({ status: 200, description: '启用成功' })
+  @ApiCustomizeSuccessResponse({ description: '启用成功', type: 'object' })
   @ApiResponse({ status: 400, description: '参数错误' })
   async enableMfa(@Body() dto: EnableMfaDto) {
     const config = await this.mfaService.enableMfa(dto.mfaType, dto.forceMfa);
@@ -81,7 +81,7 @@ export class MfaController {
   @RequiresPlatformStaff()
   @Post('disable')
   @ApiOperation({ summary: '禁用MFA', description: '禁用多因素认证功能' })
-  @ApiResponse({ status: 200, description: '禁用成功' })
+  @ApiCustomizeSuccessResponse({ description: '禁用成功', type: 'object' })
   async disableMfa() {
     const config = await this.mfaService.disableMfa();
 
@@ -124,7 +124,7 @@ export class MfaController {
   @RequiresPlatformStaff()
   @Post('reset')
   @ApiOperation({ summary: '重置MFA配置', description: '重置MFA配置为默认值' })
-  @ApiResponse({ status: 200, description: '重置成功' })
+  @ApiCustomizeSuccessResponse({ description: '重置成功', type: 'object' })
   async resetMfa() {
     const config = await this.mfaService.resetMfaConfig();
 
