@@ -28,6 +28,15 @@ export class SearchMembersDto {
   @IsBoolean({ message: '搜索是否激活必须是布尔值' })
   isActive?: boolean;
 
+  @ApiProperty({
+    description: '搜索是否在线',
+    example: 'true',
+    required: false,
+  })
+  @IsOptional()
+  @IsBoolean({ message: '搜索是否在线必须是布尔值' })
+  isOnline?: boolean;
+
   @ApiProperty({ description: '页码', example: 1, required: false })
   @IsOptional()
   @Type(() => Number)

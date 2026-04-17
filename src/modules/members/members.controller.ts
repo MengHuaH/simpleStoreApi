@@ -40,6 +40,7 @@ import { ListMembersDto } from './queries/list-members/list-members.dto';
 import { SearchMembersDto } from './queries/search-members/search-members.dto';
 import { BindPasskeyMemberDto } from './commands/bindpasskey-member/bindpasskey-member.dto';
 import { ApiPageResponse } from '@/common/interface/response.interface';
+import { ApiCustomizeSuccessResponse } from '@/common/decorators/api-response.decorator';
 
 // Entities
 import { Member } from '../../entities/member.entity';
@@ -97,6 +98,10 @@ export class MembersController {
     type: Number,
     description: '每页数量，默认10',
   })
+  @ApiCustomizeSuccessResponse({
+    description: '获取成功',
+    type: 'object',
+  })
   @ApiResponse({
     status: 200,
     description: '会员列表获取成功',
@@ -105,22 +110,13 @@ export class MembersController {
     return await this.listMembersService.execute(listMembersDto);
   }
 
-  @Get('search')
+  @Post('search')
   @ApiOperation({ summary: '搜索会员' })
-  @ApiQuery({
-    name: 'page',
-    required: false,
-    type: Number,
-    description: '页码，默认1',
+  @ApiCustomizeSuccessResponse({
+    description: '获取成功',
+    type: 'object',
   })
-  @ApiQuery({
-    name: 'limit',
-    required: false,
-    type: Number,
-    description: '每页数量，默认10',
-  })
-  @ApiResponse({ status: 200, description: '会员搜索成功' })
-  async search(@Query() searchMembersDto: SearchMembersDto) {
+  async search(@Body() searchMembersDto: SearchMembersDto) {
     return await this.searchMembersService.execute(searchMembersDto);
   }
 

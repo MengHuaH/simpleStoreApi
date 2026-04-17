@@ -28,6 +28,9 @@ export class SearchMembersService {
 
     const query = await this.memberRepository.createQueryBuilder('member');
 
+    // 左连接 userSession 关系，用于判断在线状态
+    query.leftJoinAndSelect('member.userSession', 'userSession');
+
     query.andWhere(
       new Brackets((qb) => {
         if (searchMembersDto.phone && searchMembersDto.phone.trim()) {
@@ -39,6 +42,22 @@ export class SearchMembersService {
           qb.orWhere('member.isActive = :isActive', {
             isActive: searchMembersDto.isActive,
           });
+        }
+        if (searchMembersDto.isOnline !== undefined) {
+          if (searchMembersDto.isOnline) {
+            // 在线：存在活跃的会话
+            qb.andWhere('userSession.isActive = :isActive', {
+              isActive: true,
+            });
+          } else {
+            // 离线：没有活跃的会话或没有会话
+            qb.andWhere(
+              'userSession.id IS NULL OR userSession.isActive = :isActive',
+              {
+                isActive: false,
+              },
+            );
+          }
         }
       }),
     );
