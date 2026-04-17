@@ -8,6 +8,7 @@ import { CreateMemberService } from './commands/create-member/create-member.serv
 import { UpdateMemberService } from './commands/update-member/update-member.service';
 import { DeleteMemberService } from './commands/delete-member/delete-member.service';
 import { BindPasskeyMemberService } from './commands/bindpasskey-member/bindpasskey-member.service';
+import { EnableMemberService } from './commands/enable-member/enable-member.service';
 
 // Queries (查询操作)
 import { GetMemberService } from './queries/get-member/get-member.service';
@@ -29,6 +30,7 @@ import { MemberRepository } from './shared/member.repository';
     UpdateMemberService,
     DeleteMemberService,
     BindPasskeyMemberService,
+    EnableMemberService,
 
     // Queries
     GetMemberService,

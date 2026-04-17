@@ -27,6 +27,7 @@ import { CreateCommunityStaffService } from './commands/create-community-staff/c
 import { UpdateCommunityStaffService } from './commands/update-community-staff/update-community-staff.service';
 import { DeleteCommunityStaffService } from './commands/delete-community-staff/delete-community-staff.service';
 import { BindPasskeyCommunityStaffService } from './commands/bindpasskey-community-staff/bindpasskey-community-staff.service';
+import { EnableCommunityStaffService } from './commands/enable-community-staff/enable-community-staff.service';
 
 // Queries Services
 import { GetCommunityStaffService } from './queries/get-community-staff/get-community-staff.service';
@@ -57,6 +58,7 @@ export class CommunityStaffsController {
     private readonly updateCommunityStaffService: UpdateCommunityStaffService,
     private readonly deleteCommunityStaffService: DeleteCommunityStaffService,
     private readonly bindPasskeyCommunityStaffService: BindPasskeyCommunityStaffService,
+    private readonly enableCommunityStaffService: EnableCommunityStaffService,
     // Queries
     private readonly getCommunityStaffService: GetCommunityStaffService,
     private readonly listCommunityStaffsService: ListCommunityStaffsService,
@@ -180,5 +182,22 @@ export class CommunityStaffsController {
   async remove(@Param('id', ParseUUIDPipe) id: string) {
     await this.deleteCommunityStaffService.execute(id);
     return { success: true, message: '社区员工删除成功' };
+  }
+
+  @Post(':id/enable')
+  @ApiOperation({ summary: '启用社区员工' })
+  @ApiCreatedSuccessResponse({
+    model: CommunityStaff,
+    description: '社区员工启用成功',
+  })
+  @ApiCustomizeResponse({
+    model: CommunityStaff,
+    code: 200,
+    description: '社区员工启用成功',
+  })
+  @ApiResponse({ status: 404, description: '社区员工不存在' })
+  async enable(@Param('id', ParseUUIDPipe) id: string) {
+    const communityStaff = await this.enableCommunityStaffService.execute(id);
+    return communityStaff;
   }
 }

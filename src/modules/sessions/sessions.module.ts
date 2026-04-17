@@ -11,10 +11,21 @@ import { LogoutSessionService } from './commands/logout-session/logout-session.s
 import { ListAllSessionsService } from './queries/list-all-sessions/list-all-sessions.service';
 import { AdminLogoutSessionService } from './commands/admin-logout-session/admin-logout-session.service';
 import { UserSession } from '@/entities/userSession.entity';
+import { Member } from '@/entities/member.entity';
+import { PlatformStaff } from '@/entities/platformStaff.entity';
+import { CommunityStaff } from '@/entities/communityStaff.entity';
 import { CacheModule } from '@/cache/cache.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([UserSession]), CacheModule],
+  imports: [
+    TypeOrmModule.forFeature([
+      UserSession,
+      Member,
+      PlatformStaff,
+      CommunityStaff,
+    ]),
+    CacheModule,
+  ],
   controllers: [SessionsController, AdminSessionsController],
   providers: [
     SessionRepository,

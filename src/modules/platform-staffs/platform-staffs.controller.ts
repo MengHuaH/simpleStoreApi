@@ -27,6 +27,7 @@ import { CreatePlatformStaffService } from './commands/create-platform-staff/cre
 import { UpdatePlatformStaffService } from './commands/update-platform-staff/update-platform-staff.service';
 import { DeletePlatformStaffService } from './commands/delete-platform-staff/delete-platform-staff.service';
 import { BindPasskeyPlatformStaffService } from './commands/bindpasskey-platform-staff/bindpasskey-platform-staff.service';
+import { EnablePlatformStaffService } from './commands/enable-platform-staff/enable-platform-staff.service';
 
 // Queries Services
 import { GetPlatformStaffService } from './queries/get-platform-staff/get-platform-staff.service';
@@ -57,6 +58,7 @@ export class PlatformStaffsController {
     private readonly updatePlatformStaffService: UpdatePlatformStaffService,
     private readonly deletePlatformStaffService: DeletePlatformStaffService,
     private readonly bindPasskeyPlatformStaffService: BindPasskeyPlatformStaffService,
+    private readonly enablePlatformStaffService: EnablePlatformStaffService,
     // Queries
     private readonly getPlatformStaffService: GetPlatformStaffService,
     private readonly listPlatformStaffsService: ListPlatformStaffsService,
@@ -175,5 +177,23 @@ export class PlatformStaffsController {
   async remove(@Param('id', ParseUUIDPipe) id: string) {
     await this.deletePlatformStaffService.execute(id);
     return { success: true, message: '平台员工删除成功' };
+  }
+
+  @RequiresPlatformStaff()
+  @Post(':id/enable')
+  @ApiOperation({ summary: '启用平台员工' })
+  @ApiCreatedSuccessResponse({
+    model: PlatformStaff,
+    description: '平台员工启用成功',
+  })
+  @ApiCustomizeResponse({
+    model: PlatformStaff,
+    code: 200,
+    description: '平台员工启用成功',
+  })
+  @ApiResponse({ status: 404, description: '平台员工不存在' })
+  async enable(@Param('id', ParseUUIDPipe) id: string) {
+    const platformStaff = await this.enablePlatformStaffService.execute(id);
+    return platformStaff;
   }
 }

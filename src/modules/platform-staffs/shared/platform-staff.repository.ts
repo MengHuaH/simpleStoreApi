@@ -63,4 +63,8 @@ export class PlatformStaffRepository {
       .where('platformStaff.phone LIKE :phone', { phone: `%${phone}%` })
       .getMany();
   }
+
+  async updateActive(id: string, isActive: boolean): Promise<void> {
+    await this.repository.update(id, { isActive });
+  }
 }

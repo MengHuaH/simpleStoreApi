@@ -23,6 +23,7 @@ import { AdminLogoutSessionService } from './commands/admin-logout-session/admin
 import { ListAllSessionsDto } from './queries/list-all-sessions/list-all-sessions.dto';
 import { RequiresPlatformStaff } from '@/auth/AllowAnon.decorator';
 import { ApiCustomizeSuccessResponse } from '@/common/decorators/api-response.decorator';
+import { SubjectTypeEnum } from '@/entities/enums';
 
 @ApiBearerAuth()
 @ApiTags('admin-sessions')
@@ -104,6 +105,44 @@ export class AdminSessionsController {
       userId,
       subjectType,
     );
+  }
+
+  @Delete('disable-user/:userId/:subjectType')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({
+    summary: '管理员禁用用户账户',
+    description: '管理员先强制登出用户所有会话，再禁用用户账户',
+  })
+  @ApiCustomizeSuccessResponse({ description: '禁用成功', type: 'object' })
+  @ApiResponse({ status: 401, description: '未授权' })
+  @ApiResponse({ status: 403, description: '权限不足' })
+  @ApiResponse({ status: 404, description: '用户不存在' })
+  async adminDisableUserAccount(
+    @Param('userId') userId: string,
+    @Param('subjectType') subjectType: string,
+  ) {
+    // 将字符串类型转换为枚举类型
+    const subjectTypeEnum = this.convertSubjectTypeToEnum(subjectType);
+
+    return await this.adminLogoutSessionService.disableUserAccount(
+      userId,
+      subjectTypeEnum,
+    );
+  }
+
+  private convertSubjectTypeToEnum(subjectType: string): SubjectTypeEnum {
+    switch (subjectType.toLowerCase()) {
+      case 'member':
+        return SubjectTypeEnum.Member;
+      case 'platformstaff':
+      case 'platform_staff':
+        return SubjectTypeEnum.PlatformStaff;
+      case 'communitystaff':
+      case 'community_staff':
+        return SubjectTypeEnum.CommunityStaff;
+      default:
+        return SubjectTypeEnum.Member;
+    }
   }
 
   @Post('logout-by-criteria')

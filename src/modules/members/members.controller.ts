@@ -27,6 +27,7 @@ import { CreateMemberService } from './commands/create-member/create-member.serv
 import { UpdateMemberService } from './commands/update-member/update-member.service';
 import { DeleteMemberService } from './commands/delete-member/delete-member.service';
 import { BindPasskeyMemberService } from './commands/bindpasskey-member/bindpasskey-member.service';
+import { EnableMemberService } from './commands/enable-member/enable-member.service';
 
 // Queries Services
 import { GetMemberService } from './queries/get-member/get-member.service';
@@ -61,6 +62,7 @@ export class MembersController {
     private readonly listMembersService: ListMembersService,
     private readonly searchMembersService: SearchMembersService,
     private readonly bindPasskeyMemberService: BindPasskeyMemberService,
+    private readonly enableMemberService: EnableMemberService,
   ) {}
 
   @Public()
@@ -171,5 +173,23 @@ export class MembersController {
   @ApiResponse({ status: 404, description: '会员不存在' })
   async remove(@Param('id', ParseUUIDPipe) id: string): Promise<void> {
     await this.deleteMemberService.execute(id);
+  }
+
+  @RequiresAny()
+  @Post(':id/enable')
+  @ApiOperation({ summary: '启用会员' })
+  @ApiCreatedSuccessResponse({
+    model: Member,
+    description: '会员启用成功',
+  })
+  @ApiCustomizeResponse({
+    model: Member,
+    code: 200,
+    description: '会员启用成功',
+  })
+  @ApiResponse({ status: 404, description: '会员不存在' })
+  async enable(@Param('id', ParseUUIDPipe) id: string) {
+    const member = await this.enableMemberService.execute(id);
+    return member;
   }
 }

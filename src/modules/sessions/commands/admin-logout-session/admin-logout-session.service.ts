@@ -2,6 +2,9 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { UserSession } from '@/entities/userSession.entity';
+import { Member } from '@/entities/member.entity';
+import { PlatformStaff } from '@/entities/platformStaff.entity';
+import { CommunityStaff } from '@/entities/communityStaff.entity';
 import { SessionService } from '../../shared/session.service';
 import { CacheService } from '@/cache/cache.service';
 import { SubjectTypeEnum } from '@/entities/enums';
@@ -11,6 +14,12 @@ export class AdminLogoutSessionService {
   constructor(
     @InjectRepository(UserSession)
     private readonly userSessionRepository: Repository<UserSession>,
+    @InjectRepository(Member)
+    private readonly memberRepository: Repository<Member>,
+    @InjectRepository(PlatformStaff)
+    private readonly platformStaffRepository: Repository<PlatformStaff>,
+    @InjectRepository(CommunityStaff)
+    private readonly communityStaffRepository: Repository<CommunityStaff>,
     private readonly sessionService: SessionService,
     private readonly cacheService: CacheService,
   ) {}
@@ -331,6 +340,127 @@ export class AdminLogoutSessionService {
         return { platformStaff: { id: userId } };
       default:
         return {};
+    }
+  }
+
+  /**
+   * 管理员禁用账户
+   * 先强制登出所有会话，再禁用账户
+   */
+  async disableUserAccount(
+    userId: string,
+    subjectType: SubjectTypeEnum,
+  ): Promise<{
+    success: boolean;
+    data: {
+      logoutCount: number;
+      affectedUser: {
+        id: string;
+        subjectType: string;
+      };
+      accountDisabled: boolean;
+    };
+    message: string;
+  }> {
+    try {
+      const affectedUser = {
+        id: userId,
+        subjectType: subjectType.toString(),
+      };
+
+      // 1. 强制登出用户的所有会话
+      const logoutResult = await this.logoutAllUserSessions(
+        userId,
+        subjectType.toString(),
+      );
+
+      if (!logoutResult.success) {
+        return {
+          success: false,
+          data: {
+            logoutCount: 0,
+            affectedUser,
+            accountDisabled: false,
+          },
+          message: `登出会话失败: ${logoutResult.message}`,
+        };
+      }
+
+      // 2. 禁用账户
+      const accountDisabled = await this.disableAccount(userId, subjectType);
+
+      if (!accountDisabled) {
+        return {
+          success: false,
+          data: {
+            logoutCount: logoutResult.data.logoutCount,
+            affectedUser,
+            accountDisabled: false,
+          },
+          message: '禁用账户失败',
+        };
+      }
+
+      return {
+        success: true,
+        data: {
+          logoutCount: logoutResult.data.logoutCount,
+          affectedUser,
+          accountDisabled: true,
+        },
+        message: `成功禁用用户账户，登出 ${logoutResult.data.logoutCount} 个会话`,
+      };
+    } catch (error) {
+      console.error(`禁用用户账户时发生错误:`, error);
+      return {
+        success: false,
+        data: {
+          logoutCount: 0,
+          affectedUser: { id: userId, subjectType: subjectType.toString() },
+          accountDisabled: false,
+        },
+        message: `禁用账户时发生错误: ${error.message}`,
+      };
+    }
+  }
+
+  /**
+   * 禁用具体账户
+   */
+  private async disableAccount(
+    userId: string,
+    subjectType: SubjectTypeEnum,
+  ): Promise<boolean> {
+    try {
+      let result;
+
+      switch (subjectType) {
+        case SubjectTypeEnum.Member:
+          result = await this.memberRepository.update(
+            { id: userId },
+            { isActive: false },
+          );
+          break;
+        case SubjectTypeEnum.PlatformStaff:
+          result = await this.platformStaffRepository.update(
+            { id: userId },
+            { isActive: false },
+          );
+          break;
+        case SubjectTypeEnum.CommunityStaff:
+          result = await this.communityStaffRepository.update(
+            { id: userId },
+            { isActive: false },
+          );
+          break;
+        default:
+          return false;
+      }
+
+      return (result.affected || 0) > 0;
+    } catch (error) {
+      console.error(`禁用 ${subjectType} 账户时发生错误:`, error);
+      return false;
     }
   }
 

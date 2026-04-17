@@ -64,4 +64,8 @@ export class CommunityStaffRepository {
       .where('communityStaff.phone LIKE :phone', { phone: `%${phone}%` })
       .getMany();
   }
+
+  async updateActive(id: string, isActive: boolean): Promise<void> {
+    await this.repository.update(id, { isActive });
+  }
 }
