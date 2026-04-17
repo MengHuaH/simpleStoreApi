@@ -3,6 +3,8 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { UserSession } from '@/entities/userSession.entity';
 import { SessionService } from '../../shared/session.service';
+import { CacheService } from '@/cache/cache.service';
+import { SubjectTypeEnum } from '@/entities/enums';
 
 @Injectable()
 export class AdminLogoutSessionService {
@@ -10,6 +12,7 @@ export class AdminLogoutSessionService {
     @InjectRepository(UserSession)
     private readonly userSessionRepository: Repository<UserSession>,
     private readonly sessionService: SessionService,
+    private readonly cacheService: CacheService,
   ) {}
 
   /**
@@ -39,7 +42,7 @@ export class AdminLogoutSessionService {
     // 获取受影响用户信息
     const affectedUser = this.getAffectedUserInfo(session);
 
-    // 使会话失效
+    // 1. 使数据库会话失效
     const success = await this.sessionService.invalidateSession(sessionId);
 
     if (!success) {
@@ -48,6 +51,9 @@ export class AdminLogoutSessionService {
         message: '会话登出失败',
       };
     }
+
+    // 2. 清理Redis缓存中的会话信息
+    await this.clearSessionCache(sessionId, session.subjectType);
 
     return {
       success: true,
@@ -81,7 +87,10 @@ export class AdminLogoutSessionService {
       subjectType,
     };
 
-    // 使用基础服务登出所有会话
+    // 1. 清理Redis缓存中该用户的所有会话
+    await this.clearAllUserSessionsCache(userId, subjectType as any);
+
+    // 2. 使用基础服务登出所有数据库会话
     const count = await this.sessionService.invalidateAllUserSessions(
       userId,
       subjectType as any,
@@ -171,24 +180,24 @@ export class AdminLogoutSessionService {
     if (session.member) {
       return {
         id: session.member.id,
-        subjectType: session.subjectType,
+        subjectType: 'member',
       };
     } else if (session.platformStaff) {
       return {
         id: session.platformStaff.id,
-        subjectType: session.subjectType,
+        subjectType: 'platformStaff',
       };
     } else if (session.communityStaff) {
       return {
         id: session.communityStaff.id,
-        subjectType: session.subjectType,
+        subjectType: 'communityStaff',
+      };
+    } else {
+      return {
+        id: '',
+        subjectType: 'unknown',
       };
     }
-
-    return {
-      id: 'unknown',
-      subjectType: session.subjectType || 'unknown',
-    };
   }
 
   /**
@@ -217,5 +226,147 @@ export class AdminLogoutSessionService {
         ],
       };
     }
+  }
+
+  /**
+   * 清理单个会话的Redis缓存
+   */
+  private async clearSessionCache(
+    token: string,
+    subjectType: SubjectTypeEnum,
+  ): Promise<void> {
+    const cacheKey = this.buildCacheKey(token, subjectType);
+    await this.cacheService.delete(cacheKey);
+    console.log(`清理Redis缓存: ${cacheKey}`);
+  }
+
+  /**
+   * 清理用户所有会话的Redis缓存
+   */
+  private async clearAllUserSessionsCache(
+    userId: string,
+    subjectType: SubjectTypeEnum,
+  ): Promise<void> {
+    try {
+      let activeSessions: { token: string }[] = [];
+
+      // 方法1：使用标准查询
+      try {
+        const whereCondition = this.buildUserWhereCondition(
+          userId,
+          subjectType,
+        );
+        activeSessions = await this.userSessionRepository.find({
+          where: {
+            isActive: true,
+            ...whereCondition,
+          },
+          select: ['token'],
+        });
+        console.log(
+          `方法1找到用户 ${userId} 的活跃会话: ${activeSessions.length} 个`,
+        );
+      } catch (error) {
+        console.warn(`方法1查询失败:`, error);
+      }
+
+      // 方法2：如果方法1没找到记录，使用查询构建器（备用方案）
+      if (activeSessions.length === 0) {
+        try {
+          activeSessions = await this.getUserActiveSessionsWithQueryBuilder(
+            userId,
+            subjectType,
+          );
+          console.log(
+            `方法2找到用户 ${userId} 的活跃会话: ${activeSessions.length} 个`,
+          );
+        } catch (error) {
+          console.error(`方法2查询失败:`, error);
+        }
+      }
+
+      // 批量清理缓存
+      for (const session of activeSessions) {
+        await this.clearSessionCache(session.token, subjectType);
+      }
+
+      console.log(
+        `清理用户 ${userId} 的所有会话缓存，共 ${activeSessions.length} 个`,
+      );
+    } catch (error) {
+      console.error(`清理用户 ${userId} 会话缓存时发生错误:`, error);
+    }
+  }
+
+  /**
+   * 构建缓存键
+   */
+  private buildCacheKey(token: string, subjectType: SubjectTypeEnum): string {
+    switch (subjectType) {
+      case SubjectTypeEnum.Member:
+        return `auth:member:${token}`;
+      case SubjectTypeEnum.CommunityStaff:
+        return `auth:community_staff:${token}`;
+      case SubjectTypeEnum.PlatformStaff:
+        return `auth:platform_staff:${token}`;
+      default:
+        return `auth:${token}`;
+    }
+  }
+
+  /**
+   * 构建用户查询条件
+   */
+  private buildUserWhereCondition(
+    userId: string,
+    subjectType: SubjectTypeEnum,
+  ): any {
+    console.log(`构建用户查询条件: ${userId}, ${subjectType}`);
+    switch (subjectType) {
+      case SubjectTypeEnum.Member:
+        return { member: { id: userId } };
+      case SubjectTypeEnum.CommunityStaff:
+        return { communityStaff: { id: userId } };
+      case SubjectTypeEnum.PlatformStaff:
+        return { platformStaff: { id: userId } };
+      default:
+        return {};
+    }
+  }
+
+  /**
+   * 使用查询构建器获取用户活跃会话（备用方案）
+   */
+  private async getUserActiveSessionsWithQueryBuilder(
+    userId: string,
+    subjectType: SubjectTypeEnum,
+  ): Promise<{ token: string }[]> {
+    const query = this.userSessionRepository.createQueryBuilder('session');
+
+    // 根据主体类型添加关联条件
+    switch (subjectType) {
+      case SubjectTypeEnum.Member:
+        query
+          .innerJoin('session.member', 'member')
+          .where('member.id = :userId', { userId });
+        break;
+      case SubjectTypeEnum.CommunityStaff:
+        query
+          .innerJoin('session.communityStaff', 'communityStaff')
+          .where('communityStaff.id = :userId', { userId });
+        break;
+      case SubjectTypeEnum.PlatformStaff:
+        query
+          .innerJoin('session.platformStaff', 'platformStaff')
+          .where('platformStaff.id = :userId', { userId });
+        break;
+      default:
+        return [];
+    }
+
+    // 添加活跃状态条件
+    query.andWhere('session.isActive = :isActive', { isActive: true });
+
+    return await query.select('session.token').getMany();
   }
 }

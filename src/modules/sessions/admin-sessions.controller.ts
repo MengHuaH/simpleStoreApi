@@ -22,6 +22,7 @@ import { ListAllSessionsService } from './queries/list-all-sessions/list-all-ses
 import { AdminLogoutSessionService } from './commands/admin-logout-session/admin-logout-session.service';
 import { ListAllSessionsDto } from './queries/list-all-sessions/list-all-sessions.dto';
 import { RequiresPlatformStaff } from '@/auth/AllowAnon.decorator';
+import { ApiCustomizeSuccessResponse } from '@/common/decorators/api-response.decorator';
 
 @ApiBearerAuth()
 @ApiTags('admin-sessions')
@@ -92,7 +93,7 @@ export class AdminSessionsController {
     summary: '管理员踢出用户所有会话',
     description: '管理员强制踢出指定用户的所有会话',
   })
-  @ApiResponse({ status: 200, description: '登出成功' })
+  @ApiCustomizeSuccessResponse({ description: '登出成功', type: 'object' })
   @ApiResponse({ status: 401, description: '未授权' })
   @ApiResponse({ status: 403, description: '权限不足' })
   async adminLogoutAllUserSessions(
@@ -111,7 +112,7 @@ export class AdminSessionsController {
     summary: '管理员按条件批量踢出会话',
     description: '管理员根据条件批量踢出符合条件的会话',
   })
-  @ApiResponse({ status: 200, description: '登出成功' })
+  @ApiCustomizeSuccessResponse({ description: '登出成功', type: 'object' })
   @ApiResponse({ status: 401, description: '未授权' })
   @ApiResponse({ status: 403, description: '权限不足' })
   async logoutSessionsByCriteria(

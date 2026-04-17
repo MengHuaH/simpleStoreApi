@@ -28,8 +28,14 @@ export class SearchMembersService {
 
     const query = await this.memberRepository.createQueryBuilder('member');
 
-    // 左连接 userSession 关系，用于判断在线状态
-    query.leftJoinAndSelect('member.userSession', 'userSession');
+    // 使用子查询判断会员是否在线
+    const onlineSubQuery = query
+      .subQuery()
+      .select('1')
+      .from('user_sessions', 'us')
+      .where('us.memberId = member.id')
+      .andWhere('us.isActive = :isActive')
+      .getQuery();
 
     query.andWhere(
       new Brackets((qb) => {
@@ -46,20 +52,21 @@ export class SearchMembersService {
         if (searchMembersDto.isOnline !== undefined) {
           if (searchMembersDto.isOnline) {
             // 在线：存在活跃的会话
-            qb.andWhere('userSession.isActive = :isActive', {
-              isActive: true,
-            });
+            qb.andWhere(`EXISTS (${onlineSubQuery})`);
           } else {
-            // 离线：没有活跃的会话或没有会话
-            qb.andWhere(
-              'userSession.id IS NULL OR userSession.isActive = :isActive',
-              {
-                isActive: false,
-              },
-            );
+            // 离线：不存在活跃的会话
+            qb.andWhere(`NOT EXISTS (${onlineSubQuery})`);
           }
         }
       }),
+    );
+
+    // 左连接活跃的会话记录，只返回活跃的会话
+    query.leftJoinAndSelect(
+      'member.userSession',
+      'userSession',
+      'userSession.isActive = :isActive',
+      { isActive: true },
     );
 
     const [members, total] = await query
