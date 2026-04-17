@@ -96,11 +96,11 @@ export const ApiCreatedSuccessResponse = <TModel extends Type<any>>({
 }) => {
   return applyDecorators(
     ApiResponseSwagger({
-      status: 201,
+      status: 201, // 保持 201，符合 RESTful 设计原则
       description,
       schema: {
         properties: {
-          code: { example: 201 },
+          code: { example: 201 }, // 业务码保持 201
           data: { $ref: getSchemaPath(model as TModel) },
           message: { example: '操作成功' },
           requestId: {

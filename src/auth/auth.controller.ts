@@ -103,11 +103,6 @@ export class AuthController {
     model: PlatformStaff,
     description: '平台员工登录成功',
   })
-  @ApiCustomizeResponse({
-    model: PlatformStaff,
-    code: 200,
-    description: '平台员工登录成功',
-  })
   async loginPlatformStaff(
     @Body() loginDto: AuthPlatformStaffDto,
     @Req() req: Request,

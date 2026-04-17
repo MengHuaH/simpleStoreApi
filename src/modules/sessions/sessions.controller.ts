@@ -6,7 +6,8 @@ import {
   Req,
   HttpCode,
   HttpStatus,
-  Query,
+  Body,
+  Post,
 } from '@nestjs/common';
 import {
   ApiTags,
@@ -20,6 +21,8 @@ import { GetSessionStatsService } from './queries/get-session-stats/get-session-
 import { CheckSessionService } from './queries/check-session/check-session.service';
 import { LogoutSessionService } from './commands/logout-session/logout-session.service';
 import { GetSessionsDto } from './queries/get-sessions/get-sessions.dto';
+import { GetSessionsResult } from './queries/get-sessions/get-sessions.interface';
+import { ApiCustomizeSuccessResponse } from '@/common/decorators/api-response.decorator';
 
 @ApiBearerAuth()
 @ApiTags('sessions')
@@ -32,15 +35,30 @@ export class SessionsController {
     private readonly logoutSessionService: LogoutSessionService,
   ) {}
 
-  @Get('my-sessions')
+  @Post('my-sessions')
   @ApiOperation({
     summary: '获取当前用户的活跃会话',
     description: '获取当前用户的所有活跃会话信息',
   })
-  @ApiResponse({ status: 200, description: '获取成功' })
+  @ApiCustomizeSuccessResponse({
+    description: '获取成功',
+    type: 'object',
+  })
+  @ApiResponse({ status: 201, description: '获取成功' })
   @ApiResponse({ status: 401, description: '未授权' })
-  async getMySessions(@Query() request: GetSessionsDto) {
-    return await this.getSessionsService.execute(request);
+  async getMySessions(@Body() request: GetSessionsDto, @Req() req: Request) {
+    const user = (req as any).user;
+    // 从认证信息中获取用户ID和主体类型，同时保留分页参数
+    const getSessionsDto: GetSessionsDto = {
+      page: request.page,
+      limit: request.limit,
+    };
+
+    return await this.getSessionsService.execute(
+      user.sub,
+      user.subjectType,
+      getSessionsDto,
+    );
   }
 
   @Get('stats')
@@ -48,7 +66,6 @@ export class SessionsController {
     summary: '获取会话统计信息',
     description: '获取当前用户的会话统计信息',
   })
-  @ApiResponse({ status: 200, description: '获取成功' })
   @ApiResponse({ status: 401, description: '未授权' })
   async getSessionStats(@Req() request: Request) {
     const user = (request as any).user;

@@ -4,20 +4,6 @@ import { SubjectTypeEnum } from '@/entities/enums';
 
 export class GetSessionsDto {
   @ApiProperty({
-    description: '用户ID',
-    example: '815fb4aa-56fb-474a-b181-3800bb0b82b5',
-  })
-  userId: string;
-
-  @ApiProperty({
-    description: '主体类型',
-    enum: SubjectTypeEnum,
-    example: SubjectTypeEnum.Member,
-  })
-  @IsEnum(SubjectTypeEnum)
-  subjectType: SubjectTypeEnum;
-
-  @ApiProperty({
     description: '页码',
     example: 1,
     required: false,
