@@ -50,6 +50,9 @@ export class AuthMemberService {
     if (!member) {
       throw new NotFoundException(`手机号${phone}不存在`);
     }
+    if (!member.isActive) {
+      throw new BusinessException('会员已被禁用', 202, HttpStatus.ACCEPTED);
+    }
 
     let token: string;
     let authenticated = false;

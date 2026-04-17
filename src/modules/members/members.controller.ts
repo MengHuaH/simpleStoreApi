@@ -20,7 +20,11 @@ import {
   ApiBearerAuth,
 } from '@nestjs/swagger';
 
-import { Public, RequiresAny } from '../../auth/AllowAnon.decorator';
+import {
+  Public,
+  RequiresAny,
+  RequiresPlatformStaff,
+} from '../../auth/AllowAnon.decorator';
 
 // Commands Services
 import { CreateMemberService } from './commands/create-member/create-member.service';
@@ -49,6 +53,7 @@ import {
   ApiCustomizeResponse,
   ApiCreatedSuccessResponse,
 } from '@/common/decorators/api-response.decorator';
+import { RequiresStaff } from '../../auth/AllowAnon.decorator';
 
 @ApiBearerAuth()
 @ApiTags('members')
@@ -86,6 +91,7 @@ export class MembersController {
     return await this.createMemberService.execute(createMemberDto);
   }
 
+  @RequiresStaff()
   @Get()
   @ApiOperation({ summary: '获取会员列表（分页）' })
   @ApiQuery({
@@ -112,6 +118,7 @@ export class MembersController {
     return await this.listMembersService.execute(listMembersDto);
   }
 
+  @RequiresStaff()
   @Post('search')
   @ApiOperation({ summary: '搜索会员' })
   @ApiCustomizeSuccessResponse({
@@ -122,6 +129,7 @@ export class MembersController {
     return await this.searchMembersService.execute(searchMembersDto);
   }
 
+  @RequiresAny()
   @Get(':id')
   @ApiOperation({ summary: '根据ID获取会员' })
   @ApiResponse({ status: 200, description: '会员获取成功', type: Member })
@@ -130,6 +138,7 @@ export class MembersController {
     return await this.getMemberService.execute(id);
   }
 
+  @RequiresStaff()
   @Patch(':id')
   @ApiOperation({ summary: '更新会员信息' })
   @ApiResponse({ status: 200, description: '会员更新成功', type: Member })
@@ -141,8 +150,7 @@ export class MembersController {
   ): Promise<Member> {
     return await this.updateMemberService.execute(id, updateMemberDto);
   }
-
-  @Public()
+  @RequiresAny()
   @Post(':id/bindpasskey')
   @ApiOperation({ summary: '绑定会员密钥' })
   @ApiCreatedSuccessResponse({
@@ -166,6 +174,7 @@ export class MembersController {
     );
   }
 
+  @RequiresPlatformStaff()
   @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
   @ApiOperation({ summary: '删除会员' })
@@ -175,7 +184,7 @@ export class MembersController {
     await this.deleteMemberService.execute(id);
   }
 
-  @RequiresAny()
+  @RequiresPlatformStaff()
   @Post(':id/enable')
   @ApiOperation({ summary: '启用会员' })
   @ApiCreatedSuccessResponse({

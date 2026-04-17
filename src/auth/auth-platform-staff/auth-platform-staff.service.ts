@@ -49,6 +49,9 @@ export class AuthPlatformStaffService {
     if (!platformStaff) {
       throw new NotFoundException(`平台员工手机号${phone}不存在`);
     }
+    if (!platformStaff.isActive) {
+      throw new BusinessException('平台员工已被禁用', 202, HttpStatus.ACCEPTED);
+    }
 
     let token: string;
     let authenticated = false;

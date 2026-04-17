@@ -49,6 +49,9 @@ export class AuthCommunityStaffService {
     if (!communityStaff) {
       throw new NotFoundException(`社区员工手机号${phone}不存在`);
     }
+    if (!communityStaff.isActive) {
+      throw new BusinessException('社区员工已被禁用', 202, HttpStatus.ACCEPTED);
+    }
 
     let token: string;
     let authenticated = false;
