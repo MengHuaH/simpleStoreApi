@@ -52,14 +52,16 @@ export class SessionRepository extends Repository<UserSession> {
   }
 
   /**
-   * 获取用户的所有活跃会话
+   * 获取用户的所有活跃会话（支持分页）
    */
   async findActiveSessionsByUser(
     userId: string,
     subjectType: SubjectTypeEnum,
+    skip?: number,
+    limit?: number,
   ): Promise<UserSession[]> {
     const whereCondition: any = { isActive: true };
-    
+
     switch (subjectType) {
       case SubjectTypeEnum.Member:
         whereCondition.member = { id: userId };
@@ -72,10 +74,46 @@ export class SessionRepository extends Repository<UserSession> {
         break;
     }
 
-    return await this.find({
+    const queryOptions: any = {
       where: whereCondition,
       relations: ['member', 'platformStaff', 'communityStaff'],
       order: { createdAt: 'DESC' },
+    };
+
+    // 添加分页参数
+    if (skip !== undefined) {
+      queryOptions.skip = skip;
+    }
+    if (limit !== undefined) {
+      queryOptions.take = limit;
+    }
+
+    return await this.find(queryOptions);
+  }
+
+  /**
+   * 统计用户的活跃会话数量
+   */
+  async countActiveSessionsByUser(
+    userId: string,
+    subjectType: SubjectTypeEnum,
+  ): Promise<number> {
+    const whereCondition: any = { isActive: true };
+
+    switch (subjectType) {
+      case SubjectTypeEnum.Member:
+        whereCondition.member = { id: userId };
+        break;
+      case SubjectTypeEnum.PlatformStaff:
+        whereCondition.platformStaff = { id: userId };
+        break;
+      case SubjectTypeEnum.CommunityStaff:
+        whereCondition.communityStaff = { id: userId };
+        break;
+    }
+
+    return await this.count({
+      where: whereCondition,
     });
   }
 
@@ -83,10 +121,7 @@ export class SessionRepository extends Repository<UserSession> {
    * 使会话失效
    */
   async invalidateSession(token: string): Promise<boolean> {
-    const result = await this.update(
-      { token },
-      { isActive: false }
-    );
+    const result = await this.update({ token }, { isActive: false });
     return (result.affected || 0) > 0;
   }
 
@@ -98,7 +133,7 @@ export class SessionRepository extends Repository<UserSession> {
     subjectType: SubjectTypeEnum,
   ): Promise<number> {
     const whereCondition: any = { isActive: true };
-    
+
     switch (subjectType) {
       case SubjectTypeEnum.Member:
         whereCondition.member = { id: userId };
@@ -111,10 +146,7 @@ export class SessionRepository extends Repository<UserSession> {
         break;
     }
 
-    const result = await this.update(
-      whereCondition,
-      { isActive: false }
-    );
+    const result = await this.update(whereCondition, { isActive: false });
     return result.affected || 0;
   }
 
@@ -136,7 +168,7 @@ export class SessionRepository extends Repository<UserSession> {
     subjectType: SubjectTypeEnum,
   ): Promise<{ totalSessions: number; activeSessions: number }> {
     const whereCondition: any = {};
-    
+
     switch (subjectType) {
       case SubjectTypeEnum.Member:
         whereCondition.member = { id: userId };
@@ -150,8 +182,8 @@ export class SessionRepository extends Repository<UserSession> {
     }
 
     const totalSessions = await this.count({ where: whereCondition });
-    const activeSessions = await this.count({ 
-      where: { ...whereCondition, isActive: true } 
+    const activeSessions = await this.count({
+      where: { ...whereCondition, isActive: true },
     });
 
     return { totalSessions, activeSessions };

@@ -38,8 +38,28 @@ export class SessionService {
   /**
    * 获取用户的所有活跃会话
    */
-  async findActiveSessionsByUser(userId: string, subjectType: SubjectTypeEnum) {
+  async findActiveSessionsByUser(
+    userId: string,
+    subjectType: SubjectTypeEnum,
+    skip?: number,
+    limit?: number,
+  ) {
     return await this.sessionRepository.findActiveSessionsByUser(
+      userId,
+      subjectType,
+      skip,
+      limit,
+    );
+  }
+
+  /**
+   * 统计用户的活跃会话数量
+   */
+  async countActiveSessionsByUser(
+    userId: string,
+    subjectType: SubjectTypeEnum,
+  ) {
+    return await this.sessionRepository.countActiveSessionsByUser(
       userId,
       subjectType,
     );

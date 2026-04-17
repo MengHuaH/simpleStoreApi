@@ -6,6 +6,7 @@ import {
   Req,
   HttpCode,
   HttpStatus,
+  Query,
 } from '@nestjs/common';
 import {
   ApiTags,
@@ -15,7 +16,10 @@ import {
 } from '@nestjs/swagger';
 import type { Request } from 'express';
 import { GetSessionsService } from './queries/get-sessions/get-sessions.service';
+import { GetSessionStatsService } from './queries/get-session-stats/get-session-stats.service';
+import { CheckSessionService } from './queries/check-session/check-session.service';
 import { LogoutSessionService } from './commands/logout-session/logout-session.service';
+import { GetSessionsDto } from './queries/get-sessions/get-sessions.dto';
 
 @ApiBearerAuth()
 @ApiTags('sessions')
@@ -23,6 +27,8 @@ import { LogoutSessionService } from './commands/logout-session/logout-session.s
 export class SessionsController {
   constructor(
     private readonly getSessionsService: GetSessionsService,
+    private readonly getSessionStatsService: GetSessionStatsService,
+    private readonly checkSessionService: CheckSessionService,
     private readonly logoutSessionService: LogoutSessionService,
   ) {}
 
@@ -33,9 +39,8 @@ export class SessionsController {
   })
   @ApiResponse({ status: 200, description: '获取成功' })
   @ApiResponse({ status: 401, description: '未授权' })
-  async getMySessions(@Req() request: Request) {
-    const user = (request as any).user;
-    return await this.getSessionsService.execute(user.sub, user.subjectType);
+  async getMySessions(@Query() request: GetSessionsDto) {
+    return await this.getSessionsService.execute(request);
   }
 
   @Get('stats')
@@ -47,7 +52,10 @@ export class SessionsController {
   @ApiResponse({ status: 401, description: '未授权' })
   async getSessionStats(@Req() request: Request) {
     const user = (request as any).user;
-    return await this.getSessionsService.getStats(user.sub, user.subjectType);
+    return await this.getSessionStatsService.execute(
+      user.sub,
+      user.subjectType,
+    );
   }
 
   @Delete('logout/:sessionId')
@@ -98,7 +106,7 @@ export class SessionsController {
     @Req() request: Request,
   ) {
     const user = (request as any).user;
-    return await this.getSessionsService.checkSession(
+    return await this.checkSessionService.execute(
       sessionId,
       user.sub,
       user.subjectType,
