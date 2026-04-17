@@ -29,7 +29,7 @@ export class CreateCommunityStaffService {
 
     const communityStaff = new CommunityStaff();
     communityStaff.phone = dto.phone;
-    communityStaff.userCredential.push(userCredential);
+    communityStaff.userCredential = [userCredential];
 
     return await this.repository.save(communityStaff);
   }

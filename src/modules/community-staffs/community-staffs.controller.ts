@@ -46,7 +46,12 @@ import { CommunityStaff } from '../../entities/communityStaff.entity';
 import {
   ApiCreatedSuccessResponse,
   ApiCustomizeResponse,
+  ApiCustomizeSuccessResponse,
 } from '@/common/decorators/api-response.decorator';
+import {
+  RequiresStaff,
+  RequiresPlatformStaff,
+} from '../../auth/AllowAnon.decorator';
 
 @ApiBearerAuth()
 @ApiTags('community-staffs')
@@ -65,6 +70,7 @@ export class CommunityStaffsController {
     private readonly searchCommunityStaffsService: SearchCommunityStaffsService,
   ) {}
 
+  @RequiresPlatformStaff()
   @Post()
   @ApiOperation({ summary: '创建社区员工' })
   @ApiCreatedSuccessResponse({
@@ -85,6 +91,7 @@ export class CommunityStaffsController {
     return this.createCommunityStaffService.execute(createCommunityStaffDto);
   }
 
+  @RequiresPlatformStaff()
   @Get()
   @ApiOperation({ summary: '获取社区员工列表' })
   @ApiQuery({ name: 'page', required: false, type: Number })
@@ -96,16 +103,21 @@ export class CommunityStaffsController {
     return this.listCommunityStaffsService.execute(listCommunityStaffsDto);
   }
 
-  @Get('search')
+  @RequiresPlatformStaff()
+  @Post('search')
   @ApiOperation({ summary: '搜索社区员工' })
-  @ApiResponse({ status: 200, description: '搜索社区员工成功' })
+  @ApiCustomizeSuccessResponse({
+    description: '获取成功',
+    type: 'object',
+  })
   async search(
-    @Query(new ValidationPipe())
+    @Body(new ValidationPipe())
     searchCommunityStaffsDto: SearchCommunityStaffsDto,
   ) {
     return this.searchCommunityStaffsService.execute(searchCommunityStaffsDto);
   }
 
+  @RequiresStaff()
   @Get(':id')
   @ApiOperation({ summary: '获取社区员工详情' })
   @ApiResponse({
@@ -123,6 +135,7 @@ export class CommunityStaffsController {
     return this.getCommunityStaffService.execute({ id });
   }
 
+  @RequiresPlatformStaff()
   @Patch(':id')
   @ApiOperation({ summary: '更新社区员工信息' })
   @ApiResponse({
@@ -143,6 +156,7 @@ export class CommunityStaffsController {
     );
   }
 
+  @RequiresPlatformStaff()
   @Post(':id/bindpasskey')
   @ApiOperation({ summary: '绑定社区员工密钥' })
   @ApiCreatedSuccessResponse({
@@ -174,6 +188,7 @@ export class CommunityStaffsController {
     return communityStaff;
   }
 
+  @RequiresPlatformStaff()
   @Delete(':id')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: '删除社区员工' })
