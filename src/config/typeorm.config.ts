@@ -23,7 +23,7 @@ export const typeOrmConfig: TypeOrmModuleOptions = {
     PlatformStaff,
     UserCredential,
   ],
-  synchronize: process.env.NODE_ENV !== 'production',
+  synchronize: true,
   logging: process.env.NODE_ENV !== 'production',
   charset: 'utf8mb4',
   timezone: 'Z',
