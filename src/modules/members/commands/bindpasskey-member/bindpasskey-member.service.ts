@@ -48,10 +48,8 @@ export class BindPasskeyMemberService {
         bindPasskeyMemberDto.passkey,
         10,
       );
-      memberUserCredentials.push(passkeyCredential);
+      member.userCredential = [...member.userCredential, passkeyCredential];
     }
-
-    member.userCredential = [...memberUserCredentials];
 
     return await this.memberRepository.save(member);
   }

@@ -26,7 +26,9 @@ export class BindPasskeyPlatformStaffService {
     }
 
     // 绑定用户密钥 - 检查是否已存在PassKey凭证
-    const platformStaffUserCredentials = platformStaff.userCredential || [];
+    const platformStaffUserCredentials = platformStaff.userCredential
+      ? [...platformStaff.userCredential]
+      : [];
 
     // 查找是否已存在PassKey类型的凭证
     let passkeyCredential = platformStaffUserCredentials.find(
@@ -51,7 +53,7 @@ export class BindPasskeyPlatformStaffService {
       platformStaffUserCredentials.push(passkeyCredential);
     }
 
-    platformStaff.userCredential = [...platformStaffUserCredentials];
+    platformStaff.userCredential = platformStaffUserCredentials;
 
     return await this.platformStaffRepository.save(platformStaff);
   }

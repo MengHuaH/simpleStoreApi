@@ -11,11 +11,17 @@ export class PlatformStaffRepository {
   ) {}
 
   async findById(id: string): Promise<PlatformStaff | null> {
-    return this.repository.findOne({ where: { id } });
+    return this.repository.findOne({
+      where: { id },
+      relations: ['userCredential'],
+    });
   }
 
   async findOne(phone: string): Promise<PlatformStaff | null> {
-    return this.repository.findOne({ where: { phone } });
+    return this.repository.findOne({
+      where: { phone },
+      relations: ['userCredential'],
+    });
   }
 
   async save(platformStaff: PlatformStaff): Promise<PlatformStaff> {

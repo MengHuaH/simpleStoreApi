@@ -11,11 +11,17 @@ export class CommunityStaffRepository {
   ) {}
 
   async findById(id: string): Promise<CommunityStaff | null> {
-    return this.repository.findOne({ where: { id } });
+    return this.repository.findOne({
+      where: { id },
+      relations: ['userCredential'],
+    });
   }
 
   async findOne(phone: string): Promise<CommunityStaff | null> {
-    return this.repository.findOne({ where: { phone } });
+    return this.repository.findOne({
+      where: { phone },
+      relations: ['userCredential'],
+    });
   }
 
   async save(communityStaff: CommunityStaff): Promise<CommunityStaff> {

@@ -48,10 +48,11 @@ export class BindPasskeyCommunityStaffService {
         bindPasskeyCommunityStaffDto.passkey,
         10,
       );
-      communityStaffUserCredentials.push(passkeyCredential);
+      communityStaff.userCredential = [
+        ...communityStaff.userCredential,
+        passkeyCredential,
+      ];
     }
-
-    communityStaff.userCredential = [...communityStaffUserCredentials];
 
     return await this.communityStaffRepository.save(communityStaff);
   }
