@@ -77,4 +77,6 @@ async function bootstrap() {
   }
   console.log(`env: ${process.env.NODE_ENV}`);
 }
+
+// 启动应用
 bootstrap();
